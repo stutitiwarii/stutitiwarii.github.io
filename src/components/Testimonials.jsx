@@ -1,8 +1,10 @@
 import { useTable } from '../hooks/useSupabase'
+import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
-   import RevealText from './RevealText'
+import RevealText from './RevealText'
 
 export default function Testimonials({ s }) {
+  const { t } = useLang()
   const list = useTable('testimonials')
   if (list.length === 0) return null
 
@@ -11,21 +13,21 @@ export default function Testimonials({ s }) {
       <div className="container">
         <Reveal>
           <div className="section-head">
-            <small>Testimonials</small>
-            <h2>{s.testimonials_title}</h2>
+            <small>{t('testimonials')}</small>
+            <RevealText as="h2" text={s.testimonials_title} />
           </div>
         </Reveal>
 
         <div className="cards-grid">
-          {list.map((t, i) => (
-            <Reveal key={t.id} delay={i * 0.1}>
+          {list.map((item, i) => (
+            <Reveal key={item.id} delay={i * 0.1}>
               <blockquote className="quote-card">
-                <p>{t.message}</p>
+                <p>{item.message}</p>
                 <div className="quote-who">
-                  {t.avatar_url && <img src={t.avatar_url} alt={t.name} loading="lazy" />}
+                  {item.avatar_url && <img src={item.avatar_url} alt={item.name} loading="lazy" />}
                   <div>
-                    <strong>{t.name}</strong>
-                    <span>{t.role}</span>
+                    <strong>{item.name}</strong>
+                    <span>{item.role}</span>
                   </div>
                 </div>
               </blockquote>

@@ -675,3 +675,46 @@ body { transition: background-color .5s, color .5s; }
   .js-reveal .work-media:not(.in-view) img,
   .js-reveal .post-media:not(.in-view) img { transform: scale(1.25); }
 }
+/* ================= LANGUAGE TOGGLE + HINDI ================= */
+.nav-right { gap: 20px; }
+.lang-toggle {
+  position: relative; z-index: 110; height: 40px; min-width: 40px; padding: 0 12px;
+  border-radius: 50px; border: 1px solid var(--line); background: transparent; color: var(--text);
+  font-size: .78rem; font-weight: 600; cursor: pointer; transition: border-color .3s, color .3s;
+}
+.lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+html[lang="hi"] {
+  --font-head: 'Noto Serif Devanagari', 'Playfair Display', serif;
+  --font-body: 'Noto Sans Devanagari', 'Inter', sans-serif;
+}
+/* letter spacing splits joined Devanagari letters, so switch it off in Hindi */
+html[lang="hi"] * { letter-spacing: normal !important; }
+html[lang="hi"] body { line-height: 1.85; }
+html[lang="hi"] h1, html[lang="hi"] h2, html[lang="hi"] h3 { line-height: 1.4; }
+html[lang="hi"] .word-wrap, html[lang="hi"] .rt-mask { padding-top: .14em; margin-top: -.14em; }
+
+/* ================= HINDI: LARGER TEXT ================= */
+html[lang="hi"] { font-size: 112.5%; }
+
+html[lang="hi"] .section-head small,
+html[lang="hi"] .about-text small,
+html[lang="hi"] .work-body small { font-size: .95rem; margin-bottom: 14px; }
+html[lang="hi"] .hero-tag { font-size: 1.05rem; }
+html[lang="hi"] .nav-links a { font-size: .95rem; }
+html[lang="hi"] .nav-links .btn { font-size: .95rem; padding: 11px 26px; }
+html[lang="hi"] .btn { font-size: 1.05rem; }
+html[lang="hi"] .lang-toggle { font-size: .9rem; }
+html[lang="hi"] .filters button { font-size: 1rem; }
+html[lang="hi"] .about-info li { font-size: 1.05rem; }
+html[lang="hi"] .stat span,
+html[lang="hi"] .skill-group h4 { font-size: 1rem; }
+html[lang="hi"] .post-link { font-size: .95rem; }
+html[lang="hi"] .contact-links small { font-size: .9rem; }
+html[lang="hi"] .contact-form input,
+html[lang="hi"] .contact-form textarea { font-size: 1.05rem; }
+html[lang="hi"] .footer-social a,
+html[lang="hi"] .footer p { font-size: .95rem; }
+html[lang="hi"] .wa-tip { font-size: .95rem; }
+html[lang="hi"] .mobile-menu a { font-size: 2.2rem; }
+html[lang="hi"] .marquee-group span { font-size: 1rem; }

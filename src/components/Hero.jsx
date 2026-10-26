@@ -1,7 +1,9 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useLang } from '../i18n/context'
 
 export default function Hero({ s }) {
+  const { t } = useLang()
   const ref = useRef(null)
   const words = (s.hero_title || '').split(' ')
 
@@ -68,7 +70,7 @@ export default function Hero({ s }) {
         >
           {s.hero_cta_text && <a className="btn" href={s.hero_cta_link}>{s.hero_cta_text}</a>}
           {s.resume_url && (
-            <a className="btn ghost" href={s.resume_url} target="_blank" rel="noreferrer">Download Resume</a>
+            <a className="btn ghost" href={s.resume_url} target="_blank" rel="noreferrer">{t('download_resume')}</a>
           )}
         </motion.div>
       </div>

@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
+import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
-   import RevealText from './RevealText'
+import RevealText from './RevealText'
 
 function Timeline({ title, items, titleKey, orgKey }) {
   return (
@@ -24,6 +25,7 @@ function Timeline({ title, items, titleKey, orgKey }) {
 }
 
 export default function Resume({ s }) {
+  const { t } = useLang()
   const education = useTable('education')
   const experience = useTable('experience')
   const skills = useTable('skills')
@@ -40,8 +42,11 @@ export default function Resume({ s }) {
       <div className="container">
         <Reveal>
           <div className="section-head">
-            <small>Background</small>
-            <h2>{s.experience_title ? `${s.education_title} & ${s.experience_title}` : 'Resume'}</h2>
+            <small>{t('background')}</small>
+            <RevealText
+              as="h2"
+              text={s.experience_title ? `${s.education_title} & ${s.experience_title}` : 'Resume'}
+            />
           </div>
         </Reveal>
 
@@ -82,7 +87,7 @@ export default function Resume({ s }) {
 
         {s.resume_url && (
           <Reveal className="resume-cta">
-            <a className="btn" href={s.resume_url} target="_blank" rel="noreferrer">Download Full Resume (PDF)</a>
+            <a className="btn" href={s.resume_url} target="_blank" rel="noreferrer">{t('download_full_resume')}</a>
           </Reveal>
         )}
       </div>

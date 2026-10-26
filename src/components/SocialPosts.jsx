@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTable } from '../hooks/useSupabase'
+import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
-   import RevealText from './RevealText'
+import RevealText from './RevealText'
 
 const NAMES = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn', youtube: 'YouTube', x: 'X' }
 
 export default function SocialPosts({ s }) {
+  const { t } = useLang()
   const posts = useTable('social_posts').filter((p) => p.is_visible !== false)
   const track = useRef(null)
   const [paused, setPaused] = useState(false)
@@ -27,8 +29,8 @@ export default function SocialPosts({ s }) {
   // auto slide
   useEffect(() => {
     if (!autoplay || paused || posts.length < 2) return
-    const t = setInterval(() => slide(1), seconds * 1000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => slide(1), seconds * 1000)
+    return () => clearInterval(timer)
   }, [autoplay, paused, posts.length, seconds, slide])
 
   if (posts.length === 0) return null
@@ -40,7 +42,7 @@ export default function SocialPosts({ s }) {
           <div className="posts-head">
             <div className="section-head">
               <small>{s.social_tagline}</small>
-              <h2>{s.social_title}</h2>
+              <RevealText as="h2" text={s.social_title} />
             </div>
             {posts.length > 1 && (
               <div className="posts-arrows">
@@ -82,7 +84,7 @@ export default function SocialPosts({ s }) {
                 <div className="post-body">
                   {p.title && <h3>{p.title}</h3>}
                   {p.caption && <p>{p.caption}</p>}
-                  <span className="post-link">View on {name} →</span>
+                  <span className="post-link">{t('view_on', { name })}</span>
                 </div>
               </a>
             )

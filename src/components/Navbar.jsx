@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLang } from '../i18n/context'
 
 const links = [
-  ['About', '#about'],
-  ['Resume', '#resume'],
-  ['Work', '#portfolio'],
-  ['Services', '#services'],
+  ['nav_about', '#about'],
+  ['nav_resume', '#resume'],
+  ['nav_work', '#portfolio'],
+  ['nav_services', '#services'],
 ]
 
 const Sun = () => (
@@ -22,6 +23,7 @@ const Moon = () => (
 )
 
 export default function Navbar({ s, theme, onToggleTheme }) {
+  const { lang, toggle: toggleLang, t } = useLang()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState('')
@@ -55,7 +57,8 @@ export default function Navbar({ s, theme, onToggleTheme }) {
     return () => obs.disconnect()
   }, [])
 
-  const showToggle = s.show_theme_toggle !== 'false'
+  const showTheme = s.show_theme_toggle !== 'false'
+  const showLang = s.show_lang_toggle !== 'false'
 
   return (
     <>
@@ -69,15 +72,21 @@ export default function Navbar({ s, theme, onToggleTheme }) {
 
         <div className="nav-right">
           <ul className="nav-links">
-            {links.map(([label, href]) => (
+            {links.map(([key, href]) => (
               <li key={href}>
-                <a href={href} className={active === href ? 'active' : ''}>{label}</a>
+                <a href={href} className={active === href ? 'active' : ''}>{t(key)}</a>
               </li>
             ))}
-            <li><a className="btn" href="#contact">Hire Me</a></li>
+            <li><a className="btn" href="#contact">{t('hire_me')}</a></li>
           </ul>
 
-          {showToggle && (
+          {showLang && (
+            <button className="lang-toggle" onClick={toggleLang} aria-label="Switch language">
+              {lang === 'en' ? 'हिं' : 'EN'}
+            </button>
+          )}
+
+          {showTheme && (
             <button className="theme-toggle" onClick={onToggleTheme} aria-label="Toggle light and dark mode">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
@@ -109,7 +118,7 @@ export default function Navbar({ s, theme, onToggleTheme }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {[...links, ['Contact', '#contact']].map(([label, href], i) => (
+            {[...links, ['nav_contact', '#contact']].map(([key, href], i) => (
               <motion.a
                 key={href}
                 href={href}
@@ -118,7 +127,7 @@ export default function Navbar({ s, theme, onToggleTheme }) {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 + i * 0.07 }}
               >
-                {label}
+                {t(key)}
               </motion.a>
             ))}
           </motion.div>

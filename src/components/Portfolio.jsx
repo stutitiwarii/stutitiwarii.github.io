@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
+import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
-   import RevealText from './RevealText'
+import RevealText from './RevealText'
 import YouTubePreview from './YouTubePreview'
 
 export default function Portfolio({ s }) {
+  const { t } = useLang()
   const all = useTable('portfolio_items')
   const items = all.filter((i) => i.is_visible !== false)
   const categories = ['All', ...new Set(items.map((i) => i.category).filter(Boolean))]
   const [cat, setCat] = useState('All')
   const [modal, setModal] = useState(null)
-  const shown = cat === 'All' ? items : items.filter((i) => i.category === cat)
+  const shown = cat === 'All' || !categories.includes(cat) ? items : items.filter((i) => i.category === cat)
 
   // lock scroll + close on Esc while popup is open
   useEffect(() => {
@@ -26,8 +28,8 @@ export default function Portfolio({ s }) {
       <div className="container">
         <Reveal>
           <div className="section-head">
-            <small>Portfolio</small>
-            <h2>{s.portfolio_title}</h2>
+            <small>{t('portfolio')}</small>
+            <RevealText as="h2" text={s.portfolio_title} />
           </div>
         </Reveal>
 
@@ -35,7 +37,9 @@ export default function Portfolio({ s }) {
           <Reveal>
             <div className="filters">
               {categories.map((c) => (
-                <button key={c} className={c === cat ? 'active' : ''} onClick={() => setCat(c)}>{c}</button>
+                <button key={c} className={c === cat ? 'active' : ''} onClick={() => setCat(c)}>
+                  {c === 'All' ? t('all') : c}
+                </button>
               ))}
             </div>
           </Reveal>

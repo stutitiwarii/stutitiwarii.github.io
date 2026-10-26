@@ -1,7 +1,10 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useLang } from '../i18n/context'
 
 export default function Loader({ name = '', onDone }) {
+  const { lang } = useLang()
+
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     const t = setTimeout(onDone, 2200)
@@ -10,6 +13,8 @@ export default function Loader({ name = '', onDone }) {
       document.body.style.overflow = ''
     }
   }, [onDone])
+
+  const parts = lang === 'hi' ? name.split(' ').map((w) => w + '\u00A0') : name.split('')
 
   return (
     <motion.div
@@ -20,12 +25,12 @@ export default function Loader({ name = '', onDone }) {
       transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
     >
       <div className="loader-name">
-        {name.split('').map((ch, i) => (
+        {parts.map((ch, i) => (
           <motion.span
             key={i}
             initial={{ y: '110%' }}
             animate={{ y: 0 }}
-            transition={{ duration: 0.8, delay: 0.15 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.8, delay: 0.15 + i * (lang === 'hi' ? 0.12 : 0.05), ease: [0.22, 1, 0.36, 1] }}
           >
             {ch === ' ' ? '\u00A0' : ch}
           </motion.span>

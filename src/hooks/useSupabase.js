@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useLang } from '../i18n/context'
+import { localize } from '../i18n/strings'
 
 // Loads a whole table and refreshes automatically when you edit it in Supabase
 export function useTable(table, orderBy = 'sort_order') {
+  const { lang } = useLang()
   const [rows, setRows] = useState([])
 
   useEffect(() => {
@@ -18,11 +21,12 @@ export function useTable(table, orderBy = 'sort_order') {
     return () => { supabase.removeChannel(channel) }
   }, [table, orderBy])
 
-  return rows
+  return useMemo(() => rows.map((r) => localize(r, lang)), [rows, lang])
 }
 
 // Loads site_settings as one object: { hero_title: '...', accent_color: '...' }
 export function useSettings() {
+  const { lang } = useLang()
   const [settings, setSettings] = useState({})
 
   useEffect(() => {
@@ -38,5 +42,5 @@ export function useSettings() {
     return () => { supabase.removeChannel(channel) }
   }, [])
 
-  return settings
+  return useMemo(() => localize(settings, lang), [settings, lang])
 }

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
+import { useLang } from '../i18n/context'
 
 export default function WhatsAppButton({ s }) {
+  const { t } = useLang()
   if (!s.whatsapp) return null
 
   const text = encodeURIComponent(s.whatsapp_message || '')
@@ -17,7 +19,7 @@ export default function WhatsAppButton({ s }) {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 3, type: 'spring', stiffness: 200, damping: 14 }}
     >
-      <span className="wa-tip">Chat with me</span>
+      <span className="wa-tip">{t('chat_with_me')}</span>
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
       </svg>

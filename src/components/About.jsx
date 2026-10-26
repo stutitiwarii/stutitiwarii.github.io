@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { animate, useInView } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
+import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
- import RevealText from './RevealText'
+import RevealText from './RevealText'
 
 function Counter({ to, suffix }) {
   const ref = useRef(null)
@@ -23,6 +24,7 @@ function Counter({ to, suffix }) {
 }
 
 export default function About({ s }) {
+  const { t } = useLang()
   const stats = useTable('stats')
 
   return (
@@ -35,19 +37,19 @@ export default function About({ s }) {
 
           <Reveal delay={0.15} className="about-text">
             <small>{s.about_tagline}</small>
-            <h2>{s.about_title}</h2>
+            <RevealText as="h2" text={s.about_title} />
             <p>{s.about_text}</p>
 
             <ul className="about-info">
-              {s.about_location && <li><b>Location:</b>{s.about_location}</li>}
-              {s.email && <li><b>Email:</b>{s.email}</li>}
-              {s.about_availability && <li><b>Status:</b>{s.about_availability}</li>}
+              {s.about_location && <li><b>{t('location')}:</b>{s.about_location}</li>}
+              {s.email && <li><b>{t('email')}:</b>{s.email}</li>}
+              {s.about_availability && <li><b>{t('status')}:</b>{s.about_availability}</li>}
             </ul>
 
             <div className="hero-actions" style={{ justifyContent: 'flex-start' }}>
-              <a className="btn" href="#contact">Let's Talk</a>
+              <a className="btn" href="#contact">{t('lets_talk')}</a>
               {s.resume_url && (
-                <a className="btn ghost" href={s.resume_url} target="_blank" rel="noreferrer">Download Resume</a>
+                <a className="btn ghost" href={s.resume_url} target="_blank" rel="noreferrer">{t('download_resume')}</a>
               )}
             </div>
           </Reveal>

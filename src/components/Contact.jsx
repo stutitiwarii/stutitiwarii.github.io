@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
-   import RevealText from './RevealText'
+import RevealText from './RevealText'
 
 export default function Contact({ s }) {
+  const { t } = useLang()
   const [form, setForm] = useState({ name: '', email: '', message: '', website: '' })
   const [sending, setSending] = useState(false)
   const [status, setStatus] = useState({ type: '', text: '' })
@@ -48,18 +50,18 @@ export default function Contact({ s }) {
 
     if (results.some((r) => r.status === 'fulfilled')) {
       setForm({ name: '', email: '', message: '', website: '' })
-      setStatus({ type: 'ok', text: 'Thank you! Your message has been sent.' })
+      setStatus({ type: 'ok', text: t('sent_ok') })
     } else {
-      setStatus({ type: 'err', text: 'Something went wrong. Please try again or email directly.' })
+      setStatus({ type: 'err', text: t('sent_err') })
     }
   }
 
   const links = [
-    s.email && { ic: '✉', label: 'Email', text: s.email, href: `mailto:${s.email}` },
-    s.phone && { ic: '☎', label: 'Phone', text: s.phone, href: `tel:${s.phone.replace(/\s/g, '')}` },
-    s.whatsapp && { ic: '💬', label: 'WhatsApp', text: 'Chat with me', href: `https://wa.me/${s.whatsapp}` },
-    s.instagram && { ic: '📷', label: 'Instagram', text: 'Follow along', href: s.instagram },
-    s.linkedin && { ic: 'in', label: 'LinkedIn', text: 'Connect with me', href: s.linkedin },
+    s.email && { ic: '✉', label: t('lbl_email'), text: s.email, href: `mailto:${s.email}` },
+    s.phone && { ic: '☎', label: t('lbl_phone'), text: s.phone, href: `tel:${s.phone.replace(/\s/g, '')}` },
+    s.whatsapp && { ic: '💬', label: t('lbl_whatsapp'), text: t('txt_whatsapp'), href: `https://wa.me/${s.whatsapp}` },
+    s.instagram && { ic: '📷', label: t('lbl_instagram'), text: t('txt_instagram'), href: s.instagram },
+    s.linkedin && { ic: 'in', label: t('lbl_linkedin'), text: t('txt_linkedin'), href: s.linkedin },
   ].filter(Boolean)
 
   return (
@@ -67,17 +69,17 @@ export default function Contact({ s }) {
       <div className="container">
         <Reveal>
           <div className="section-head">
-            <small>Contact</small>
-            <h2>{s.contact_title}</h2>
+            <small>{t('contact')}</small>
+            <RevealText as="h2" text={s.contact_title} />
           </div>
         </Reveal>
 
         <div className="contact-grid">
           <Reveal className="contact-info">
-            <p>Have a project in mind or just want to say hello? Send a message and I'll get back to you soon.</p>
+            <p>{t('contact_intro')}</p>
             <div className="contact-links">
               {links.map((l) => (
-                <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+                <a key={l.href} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
                   <span className="ic">{l.ic}</span>
                   <span><small>{l.label}</small><b>{l.text}</b></span>
                 </a>
@@ -88,14 +90,14 @@ export default function Contact({ s }) {
           <Reveal delay={0.15}>
             <form className="contact-form" onSubmit={submit}>
               <div className="row">
-                <input required placeholder="Your name" value={form.name} onChange={set('name')} />
-                <input required type="email" placeholder="Your email" value={form.email} onChange={set('email')} />
+                <input required placeholder={t('ph_name')} value={form.name} onChange={set('name')} />
+                <input required type="email" placeholder={t('ph_email')} value={form.email} onChange={set('email')} />
               </div>
-              <textarea required rows="6" placeholder="Tell me about your project..." value={form.message} onChange={set('message')} />
+              <textarea required rows="6" placeholder={t('ph_message')} value={form.message} onChange={set('message')} />
               <input className="hp" tabIndex="-1" autoComplete="off" placeholder="Website" value={form.website} onChange={set('website')} />
               <div>
                 <button className="btn" type="submit" disabled={sending}>
-                  {sending ? 'Sending...' : 'Send Message'}
+                  {sending ? t('sending') : t('send')}
                 </button>
               </div>
               {status.text && <p className={`form-status ${status.type}`}>{status.text}</p>}
