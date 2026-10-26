@@ -471,3 +471,59 @@ html.lenis, html.lenis body { height: auto; }
 /* ================= ACTIVE NAV LINK ================= */
 .nav-links a.active:not(.btn) { color: var(--text); }
 .nav-links a.active:not(.btn)::after { width: 100%; }
+
+/* ================= CUSTOM CURSOR (PC only) ================= */
+@media (hover: hover) and (pointer: fine) {
+  body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: none; }
+  body.has-cursor input, body.has-cursor textarea { cursor: text; }
+}
+.cursor-dot, .cursor-ring {
+  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1000; border-radius: 50%;
+}
+.cursor-dot { width: 8px; height: 8px; margin: -4px 0 0 -4px; background: var(--accent); }
+.cursor-ring {
+  width: 40px; height: 40px; margin: -20px 0 0 -20px;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* ================= CARD GLOW + TILT ================= */
+.work-card { position: relative; }
+.work-card::after, .service-card::after, .quote-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  border-radius: inherit; transition: opacity .4s; z-index: 3;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%);
+}
+.work-card:hover::after, .service-card:hover::after, .quote-card:hover::after { opacity: 1; }
+
+.service-card, .quote-card {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .25s ease-out, border-color .4s;
+  will-change: transform;
+}
+.service-card:hover {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-8px);
+}
+.quote-card:hover { border-color: var(--accent); }
+
+/* ================= MARQUEE ================= */
+.marquee {
+  overflow: hidden; border-block: 1px solid var(--line);
+  padding: 28px 0; background: var(--card);
+}
+.marquee-track { display: flex; width: max-content; animation: marquee 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-group { display: flex; flex-shrink: 0; }
+.marquee-group span {
+  display: flex; align-items: center; gap: 56px; padding-left: 28px; padding-right: 28px;
+  font-family: var(--font-head); font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+  white-space: nowrap; color: var(--muted);
+}
+.marquee-group span i { font-style: normal; color: var(--accent); font-size: .55em; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  .service-card, .quote-card { transition: none; }
+}

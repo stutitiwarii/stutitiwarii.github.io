@@ -4,8 +4,11 @@ import { useSettings } from './hooks/useSupabase'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import Loader from './components/Loader'
 import ScrollProgress from './components/ScrollProgress'
+import Cursor from './components/Cursor'
+import CardEffects from './components/CardEffects'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
+import Marquee from './components/Marquee'
 import About from './components/About'
 import Resume from './components/Resume'
 import Portfolio from './components/Portfolio'
@@ -36,11 +39,13 @@ export default function App() {
         {!loaded && <Loader key="loader" name={s.brand_name} onDone={finish} />}
       </AnimatePresence>
 
+      <Cursor />
+      <CardEffects />
       <ScrollProgress />
       <Navbar s={s} />
       <main>
-        {/* key makes the hero animation replay when the loader slides away */}
         <Hero key={String(loaded)} s={s} />
+        <Marquee s={s} />
         <About s={s} />
         <Resume s={s} />
         <Portfolio s={s} />
