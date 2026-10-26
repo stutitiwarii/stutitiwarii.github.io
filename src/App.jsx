@@ -6,6 +6,7 @@ import Loader from './components/Loader'
 import ScrollProgress from './components/ScrollProgress'
 import Cursor from './components/Cursor'
 import CardEffects from './components/CardEffects'
+import WhatsAppButton from './components/WhatsAppButton'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Marquee from './components/Marquee'
@@ -31,7 +32,12 @@ export default function App() {
     if (s.accent_color) root.setProperty('--accent', s.accent_color)
     if (s.bg_color) root.setProperty('--bg', s.bg_color)
     if (s.text_color) root.setProperty('--text', s.text_color)
-    if (s.brand_name) document.title = s.brand_name
+
+    const title = s.seo_title || s.brand_name
+    if (title) document.title = title
+    if (s.seo_description) {
+      document.querySelector('meta[name="description"]')?.setAttribute('content', s.seo_description)
+    }
   }, [s])
 
   return (
@@ -57,6 +63,7 @@ export default function App() {
         <Contact s={s} />
       </main>
       <Footer s={s} />
+      <WhatsAppButton s={s} />
     </>
   )
 }
