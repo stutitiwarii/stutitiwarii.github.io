@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
 import Reveal from './Reveal'
+   import RevealText from './RevealText'
 import YouTubePreview from './YouTubePreview'
 
 export default function Portfolio({ s }) {

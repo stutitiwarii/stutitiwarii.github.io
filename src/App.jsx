@@ -7,6 +7,7 @@ import Loader from './components/Loader'
 import ScrollProgress from './components/ScrollProgress'
 import Cursor from './components/Cursor'
 import CardEffects from './components/CardEffects'
+import MediaReveal from './components/MediaReveal'
 import WhatsAppButton from './components/WhatsAppButton'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -56,6 +57,7 @@ export default function App() {
 
       <Cursor />
       <CardEffects />
+      <MediaReveal />
       <ScrollProgress />
       <Navbar s={s} theme={theme} onToggleTheme={toggleTheme} />
       <main>

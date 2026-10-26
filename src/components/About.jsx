@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { animate, useInView } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
 import Reveal from './Reveal'
+ import RevealText from './RevealText'
 
 function Counter({ to, suffix }) {
   const ref = useRef(null)

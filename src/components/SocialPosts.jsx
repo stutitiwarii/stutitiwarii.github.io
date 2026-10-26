@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTable } from '../hooks/useSupabase'
 import Reveal from './Reveal'
+   import RevealText from './RevealText'
 
 const NAMES = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn', youtube: 'YouTube', x: 'X' }
 

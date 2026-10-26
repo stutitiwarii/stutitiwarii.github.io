@@ -645,3 +645,33 @@ body { transition: background-color .5s, color .5s; }
 }
 .hero:hover .hero-spot { opacity: 1; }
 @media (hover: none) { .hero-spot { display: none; } }
+
+/* ================= HEADING REVEAL ================= */
+.rt-mask {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  padding-bottom: .16em; margin-bottom: -.16em;
+}
+.rt-word { display: inline-block; transform-origin: left bottom; }
+
+/* ================= IMAGE UNMASK ================= */
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal .work-media,
+  .js-reveal .post-media {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.2s cubic-bezier(.76, 0, .24, 1);
+  }
+  .js-reveal .work-media:not(.in-view),
+  .js-reveal .post-media:not(.in-view) { clip-path: inset(0 0 100% 0); }
+
+  .js-reveal .about-photo img,
+  .js-reveal .slider {
+    clip-path: inset(0 0 0 0 round var(--radius));
+    transition: clip-path 1.2s cubic-bezier(.76, 0, .24, 1);
+  }
+  .js-reveal .about-photo img:not(.in-view),
+  .js-reveal .slider:not(.in-view) { clip-path: inset(0 0 100% 0 round var(--radius)); }
+
+  /* card images start zoomed in and settle to normal as the curtain opens */
+  .js-reveal .work-media:not(.in-view) img,
+  .js-reveal .post-media:not(.in-view) img { transform: scale(1.25); }
+}

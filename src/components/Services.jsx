@@ -1,5 +1,6 @@
 import { useTable } from '../hooks/useSupabase'
 import Reveal from './Reveal'
+   import RevealText from './RevealText'
 
 export default function Services({ s }) {
   const services = useTable('services')

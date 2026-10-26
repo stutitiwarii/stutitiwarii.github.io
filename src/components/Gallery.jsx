@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
 import Reveal from './Reveal'
+   import RevealText from './RevealText'
 
 const variants = {
   enter: (d) => ({ x: d > 0 ? '100%' : '-100%', opacity: 0 }),

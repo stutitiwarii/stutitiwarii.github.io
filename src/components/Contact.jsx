@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import Reveal from './Reveal'
+   import RevealText from './RevealText'
 
 export default function Contact({ s }) {
   const [form, setForm] = useState({ name: '', email: '', message: '', website: '' })
