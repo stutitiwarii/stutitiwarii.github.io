@@ -442,3 +442,32 @@ button, input, textarea { font-family: inherit; }
   .slider-arrow.next { right: 10px; }
   .slide-caption { padding: 50px 20px 40px; }
 }
+
+/* ================= SMOOTH SCROLL (Lenis) ================= */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ================= LOADER ================= */
+.loader {
+  position: fixed; inset: 0; z-index: 999; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+}
+.loader-name {
+  font-family: var(--font-head); font-size: clamp(2rem, 7vw, 4.5rem);
+  display: flex; flex-wrap: wrap; justify-content: center; overflow: hidden;
+  padding: 0 6% .1em; text-align: center;
+}
+.loader-name span { display: inline-block; }
+.loader-line { width: min(240px, 50vw); height: 1px; background: var(--line); overflow: hidden; }
+.loader-line span { display: block; height: 100%; background: var(--accent); transform-origin: left; }
+
+/* ================= SCROLL PROGRESS ================= */
+.progress-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 120;
+  background: var(--accent); transform-origin: left;
+}
+
+/* ================= ACTIVE NAV LINK ================= */
+.nav-links a.active:not(.btn) { color: var(--text); }
+.nav-links a.active:not(.btn)::after { width: 100%; }

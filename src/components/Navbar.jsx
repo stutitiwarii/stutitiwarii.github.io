@@ -11,6 +11,7 @@ const links = [
 export default function Navbar({ s }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [active, setActive] = useState('')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -22,6 +23,24 @@ export default function Navbar({ s }) {
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
   }, [open])
+
+  // highlight the section that is currently in the middle of the screen
+  useEffect(() => {
+    const ids = ['top', 'about', 'resume', 'portfolio', 'services', 'contact']
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(`#${e.target.id}`)
+        })
+      },
+      { rootMargin: '-45% 0px -50% 0px' }
+    )
+    ids.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) obs.observe(el)
+    })
+    return () => obs.disconnect()
+  }, [])
 
   return (
     <>
@@ -35,7 +54,9 @@ export default function Navbar({ s }) {
 
         <ul className="nav-links">
           {links.map(([label, href]) => (
-            <li key={href}><a href={href}>{label}</a></li>
+            <li key={href}>
+              <a href={href} className={active === href ? 'active' : ''}>{label}</a>
+            </li>
           ))}
           <li><a className="btn" href="#contact">Hire Me</a></li>
         </ul>
@@ -49,6 +70,7 @@ export default function Navbar({ s }) {
         {open && (
           <motion.div
             className="mobile-menu"
+            data-lenis-prevent
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

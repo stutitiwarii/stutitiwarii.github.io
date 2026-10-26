@@ -1,5 +1,9 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { useSettings } from './hooks/useSupabase'
+import useSmoothScroll from './hooks/useSmoothScroll'
+import Loader from './components/Loader'
+import ScrollProgress from './components/ScrollProgress'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import About from './components/About'
@@ -13,6 +17,10 @@ import Footer from './components/Footer'
 
 export default function App() {
   const s = useSettings()
+  const [loaded, setLoaded] = useState(false)
+  const finish = useCallback(() => setLoaded(true), [])
+
+  useSmoothScroll()
 
   useEffect(() => {
     const root = document.documentElement.style
@@ -24,9 +32,15 @@ export default function App() {
 
   return (
     <>
+      <AnimatePresence>
+        {!loaded && <Loader key="loader" name={s.brand_name} onDone={finish} />}
+      </AnimatePresence>
+
+      <ScrollProgress />
       <Navbar s={s} />
       <main>
-        <Hero s={s} />
+        {/* key makes the hero animation replay when the loader slides away */}
+        <Hero key={String(loaded)} s={s} />
         <About s={s} />
         <Resume s={s} />
         <Portfolio s={s} />
