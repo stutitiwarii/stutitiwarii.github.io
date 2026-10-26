@@ -13,6 +13,7 @@ import About from './components/About'
 import Resume from './components/Resume'
 import Portfolio from './components/Portfolio'
 import Gallery from './components/Gallery'
+import SocialPosts from './components/SocialPosts'
 import Services from './components/Services'
 import Testimonials from './components/Testimonials'
 import Contact from './components/Contact'
@@ -50,6 +51,7 @@ export default function App() {
         <Resume s={s} />
         <Portfolio s={s} />
         <Gallery s={s} />
+        <SocialPosts s={s} />
         <Services s={s} />
         <Testimonials s={s} />
         <Contact s={s} />
