@@ -15,16 +15,41 @@ export default function Contact({ s }) {
     setSending(true)
     setStatus({ type: '', text: '' })
 
-    const { error } = await supabase
+    const saveToDb = supabase
       .from('messages')
       .insert({ name: form.name, email: form.email, message: form.message })
+      .then(({ error }) => {
+        if (error) throw error
+      })
 
+    const sendEmail = s.web3forms_key
+      ? fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: s.web3forms_key,
+            subject: `New message from ${form.name} (portfolio)`,
+            from_name: 'Portfolio Website',
+            name: form.name,
+            email: form.email,
+            message: form.message,
+          }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (!d.success) throw new Error(d.message || 'Email failed')
+          })
+      : Promise.reject(new Error('No email key'))
+
+    // success if the message was saved OR emailed
+    const results = await Promise.allSettled([saveToDb, sendEmail])
     setSending(false)
-    if (error) {
-      setStatus({ type: 'err', text: 'Something went wrong. Please try again or email directly.' })
-    } else {
+
+    if (results.some((r) => r.status === 'fulfilled')) {
       setForm({ name: '', email: '', message: '', website: '' })
       setStatus({ type: 'ok', text: 'Thank you! Your message has been sent.' })
+    } else {
+      setStatus({ type: 'err', text: 'Something went wrong. Please try again or email directly.' })
     }
   }
 
