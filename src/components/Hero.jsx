@@ -1,10 +1,21 @@
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Hero({ s }) {
+  const ref = useRef(null)
   const words = (s.hero_title || '').split(' ')
 
+  // the glow follows the mouse (PC only, the CSS hides it on touch screens)
+  const onMove = (e) => {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    el.style.setProperty('--sx', `${e.clientX - r.left}px`)
+    el.style.setProperty('--sy', `${e.clientY - r.top}px`)
+  }
+
   return (
-    <section id="top" className="hero">
+    <section id="top" className="hero" ref={ref} onMouseMove={onMove}>
       <motion.div
         className="hero-bg"
         style={{ backgroundImage: `url(${s.hero_image})` }}
@@ -13,6 +24,7 @@ export default function Hero({ s }) {
         transition={{ duration: 2.8, ease: 'easeOut' }}
       />
       <div className="hero-overlay" />
+      <div className="hero-spot" />
 
       <div className="hero-inner">
         <motion.span

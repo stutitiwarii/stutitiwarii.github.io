@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useSettings } from './hooks/useSupabase'
 import useSmoothScroll from './hooks/useSmoothScroll'
+import useTheme from './hooks/useTheme'
 import Loader from './components/Loader'
 import ScrollProgress from './components/ScrollProgress'
 import Cursor from './components/Cursor'
@@ -24,21 +25,28 @@ export default function App() {
   const s = useSettings()
   const [loaded, setLoaded] = useState(false)
   const finish = useCallback(() => setLoaded(true), [])
+  const [theme, toggleTheme] = useTheme(s.default_theme)
 
   useSmoothScroll()
 
+  // colors come from Supabase: dark colors in dark mode, light_* colors in light mode
   useEffect(() => {
     const root = document.documentElement.style
-    if (s.accent_color) root.setProperty('--accent', s.accent_color)
-    if (s.bg_color) root.setProperty('--bg', s.bg_color)
-    if (s.text_color) root.setProperty('--text', s.text_color)
+    const light = theme === 'light'
+    const bg = light ? s.light_bg_color || '#faf7f2' : s.bg_color
+    const text = light ? s.light_text_color || '#1a1a1a' : s.text_color
+    const accent = light ? s.light_accent_color || s.accent_color : s.accent_color
+
+    if (bg) root.setProperty('--bg', bg)
+    if (text) root.setProperty('--text', text)
+    if (accent) root.setProperty('--accent', accent)
 
     const title = s.seo_title || s.brand_name
     if (title) document.title = title
     if (s.seo_description) {
       document.querySelector('meta[name="description"]')?.setAttribute('content', s.seo_description)
     }
-  }, [s])
+  }, [s, theme])
 
   return (
     <>
@@ -49,7 +57,7 @@ export default function App() {
       <Cursor />
       <CardEffects />
       <ScrollProgress />
-      <Navbar s={s} />
+      <Navbar s={s} theme={theme} onToggleTheme={toggleTheme} />
       <main>
         <Hero key={String(loaded)} s={s} />
         <Marquee s={s} />

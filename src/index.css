@@ -609,3 +609,39 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) {
   .wa-float::before { animation: none; }
 }
+
+/* ================= THEME TOGGLE ================= */
+body { transition: background-color .5s, color .5s; }
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+.nav-right { display: flex; align-items: center; gap: 28px; }
+.theme-toggle {
+  position: relative; z-index: 110; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--line); background: transparent; color: var(--text);
+  display: grid; place-items: center; cursor: pointer; transition: border-color .3s, color .3s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { width: 18px; height: 18px; display: block; }
+.theme-toggle span { display: grid; place-items: center; }
+
+/* in light mode, the navbar sits on the dark hero image, so keep it light until you scroll */
+[data-theme="light"] .nav:not(.scrolled):not(.menu-open) {
+  --text: #f5f1ea; --muted: rgba(245,241,234,.72); --line: rgba(245,241,234,.28);
+  color: #f5f1ea;
+}
+
+/* hero text always stays light because the hero has a dark photo overlay */
+.hero { color: #f5f1ea; }
+.hero .hero-sub { color: rgba(245,241,234,.82); }
+.hero .btn.ghost { color: #f5f1ea; border-color: rgba(245,241,234,.35); }
+.hero .btn.ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ================= HERO SPOTLIGHT (mouse glow) ================= */
+.hero-spot {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .6s;
+  background: radial-gradient(520px circle at var(--sx, 50%) var(--sy, 40%),
+    color-mix(in srgb, var(--accent) 24%, transparent), transparent 62%);
+}
+.hero:hover .hero-spot { opacity: 1; }
+@media (hover: none) { .hero-spot { display: none; } }
