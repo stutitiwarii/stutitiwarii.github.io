@@ -755,3 +755,80 @@ html[lang="hi"] .marquee-group span { font-size: 1rem; }
 @media (max-width: 700px) {
   .svc-modal { padding: 38px 22px 28px; }
 }
+
+/* ================= BRANDS GLOBE ================= */
+.brands-sec {
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 7%, transparent), transparent 65%);
+  overflow: hidden;
+}
+.brands-sub { max-width: 560px; margin: 24px auto 0; color: var(--muted); }
+
+.globe-stage {
+  position: relative; width: min(100%, 640px); aspect-ratio: 1; margin: 0 auto;
+  cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
+.globe-stage.dragging { cursor: grabbing; }
+
+.globe-glass {
+  position: absolute; inset: 4%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%,
+    color-mix(in srgb, var(--accent) 3%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 9%, transparent) 72%,
+    color-mix(in srgb, var(--accent) 22%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow:
+    inset 0 0 70px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 0 90px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.globe-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.globe-shine {
+  position: absolute; inset: 4%; border-radius: 50%; pointer-events: none; z-index: 300;
+  background:
+    radial-gradient(ellipse 26% 15% at 31% 17%, rgba(255,255,255,.4), transparent 70%),
+    linear-gradient(140deg, rgba(255,255,255,.1), transparent 38%);
+}
+
+.globe-item {
+  position: absolute; left: 50%; top: 50%;
+  width: var(--gi, 56px); height: var(--gi, 56px); padding: 0; border: 0; border-radius: 50%;
+  background: #fff; color: #111; display: grid; place-items: center; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35); will-change: transform, opacity;
+}
+.globe-item img { width: 72%; height: 72%; object-fit: contain; pointer-events: none; }
+.gi-fallback { font-family: var(--font-head); font-weight: 700; font-size: calc(var(--gi, 56px) * .42); }
+.globe-item:hover, .globe-item:focus-visible {
+  z-index: 250 !important; box-shadow: 0 0 0 3px var(--accent), 0 10px 26px rgba(0,0,0,.45);
+}
+.globe-tip {
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  padding: 4px 12px; border-radius: 50px; font-size: .72rem; opacity: 0;
+  pointer-events: none; transition: opacity .2s;
+}
+.globe-item:hover .globe-tip, .globe-item:focus-visible .globe-tip { opacity: 1; }
+
+.globe-hint {
+  text-align: center; margin-top: 28px; color: var(--muted); font-size: .82rem;
+  letter-spacing: .14em; text-transform: uppercase;
+}
+html[lang="hi"] .globe-hint { font-size: 1rem; }
+
+/* popup */
+.brand-modal { text-align: center; }
+.brand-modal .brand-logo {
+  width: 92px; height: 92px; margin: 0 auto 18px; border-radius: 50%; background: #fff;
+  display: grid; place-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.brand-modal .brand-logo img { width: 70%; height: 70%; object-fit: contain; }
+.brand-modal .brand-logo span { font-family: var(--font-head); font-size: 2.4rem; color: #111; font-weight: 700; }
+.brand-modal .brand-cat {
+  display: block; color: var(--accent); letter-spacing: .25em; text-transform: uppercase;
+  font-size: .72rem; margin-bottom: 6px;
+}
+.brand-modal .svc-body p { white-space: pre-line; }
+.brand-modal .btn { margin-top: 22px; }
+
+@media (max-width: 700px) {
+  .globe-stage { width: 100%; }
+  .globe-tip { display: none; }
+}

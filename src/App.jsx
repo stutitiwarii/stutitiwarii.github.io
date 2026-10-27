@@ -18,6 +18,7 @@ import Portfolio from './components/Portfolio'
 import Gallery from './components/Gallery'
 import SocialPosts from './components/SocialPosts'
 import Services from './components/Services'
+import BrandGlobe from './components/BrandGlobe'
 import Testimonials from './components/Testimonials'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
@@ -69,6 +70,7 @@ export default function App() {
         <Gallery s={s} />
         <SocialPosts s={s} />
         <Services s={s} />
+        <BrandGlobe s={s} />
         <Testimonials s={s} />
         <Contact s={s} />
       </main>
