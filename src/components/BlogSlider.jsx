@@ -102,7 +102,7 @@ export default function BlogSlider({ s }) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {hi ? 'ब्लॉग पढ़ें' : 'Read blog'} ↗
+                      {hi ? 'और पढ़ें' : 'Read more'} ↗
                     </a>
                   )}
                 </div>

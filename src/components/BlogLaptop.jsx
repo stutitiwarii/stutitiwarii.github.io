@@ -155,7 +155,7 @@ export default function BlogLaptop({ s }) {
             {n > 1 && <button type="button" className="blog-arrow" onClick={() => step(1)} aria-label="Next">›</button>}
             {cur.blog_url && (
               <a className="btn" href={cur.blog_url} target="_blank" rel="noopener noreferrer">
-                {hi ? 'ब्लॉग पढ़ें' : 'Read blog'} ↗
+                {hi ? 'और पढ़ें' : 'Read more'} ↗
               </a>
             )}
           </div>
