@@ -718,3 +718,40 @@ html[lang="hi"] .footer p { font-size: .95rem; }
 html[lang="hi"] .wa-tip { font-size: .95rem; }
 html[lang="hi"] .mobile-menu a { font-size: 2.2rem; }
 html[lang="hi"] .marquee-group span { font-size: 1rem; }
+
+/* ================= SOUND BUTTON ================= */
+.yt-sound {
+  position: absolute; right: 14px; bottom: 14px; z-index: 6;
+  padding: 7px 14px; border-radius: 50px; cursor: pointer;
+  background: rgba(0,0,0,.7); color: #fff; border: 1px solid rgba(255,255,255,.28);
+  backdrop-filter: blur(8px); font-size: .78rem; transition: .3s;
+}
+.yt-sound:hover { background: var(--accent); border-color: var(--accent); color: #111; }
+
+/* ================= SERVICE CARDS: SHORT + READ MORE ================= */
+.service-card { display: flex; flex-direction: column; }
+.cards-grid > div > .service-card { flex: 1; }
+.svc-desc {
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.service-card .svc-more {
+  margin-top: auto; padding: 16px 0 0; align-self: flex-start; background: none; border: 0;
+  color: var(--accent); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+}
+.service-card .svc-more:hover { text-decoration: underline; text-underline-offset: 5px; }
+
+.svc-modal {
+  position: relative; width: min(680px, 100%); max-height: 86vh; overflow-y: auto;
+  overscroll-behavior: contain; background: var(--bg); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 44px 40px 40px;
+}
+.svc-modal .modal-close { top: 14px; right: 18px; color: var(--text); }
+.svc-modal h3 { font-size: 1.6rem; margin-bottom: 18px; }
+.svc-body p { color: var(--muted); margin-bottom: 14px; }
+.svc-body ul { list-style: none; display: grid; gap: 10px; margin-top: 6px; }
+.svc-body li { position: relative; padding-left: 26px; color: var(--muted); }
+.svc-body li::before { content: '✦'; position: absolute; left: 0; top: .35em; color: var(--accent); font-size: .75rem; }
+
+@media (max-width: 700px) {
+  .svc-modal { padding: 38px 22px 28px; }
+}

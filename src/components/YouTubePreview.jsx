@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'framer-motion'
+import { useLang } from '../i18n/context'
 
 export function getYouTubeId(url = '') {
   const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/)
@@ -9,13 +10,23 @@ export function getYouTubeId(url = '') {
 const isTouch = () =>
   typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches
 
+// remembered for this visit once the viewer turns sound on
+let soundPref = false
+
 export default function YouTubePreview({ url, start = 0, seconds = 6, poster, title, onOpen }) {
+  const { lang } = useLang()
   const id = getYouTubeId(url)
   const ref = useRef(null)
+  const frame = useRef(null)
   const timer = useRef(null)
   const inView = useInView(ref, { amount: 0.75 })
   const [playing, setPlaying] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [sound, setSound] = useState(soundPref)
+
+  const command = (func, args = []) => {
+    frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*')
+  }
 
   const stop = () => {
     clearTimeout(timer.current)
@@ -40,14 +51,34 @@ export default function YouTubePreview({ url, start = 0, seconds = 6, poster, ti
   // start the countdown only once the video has actually loaded
   const onLoad = () => {
     setLoaded(true)
+    setSound(soundPref)
     clearTimeout(timer.current)
     timer.current = setTimeout(stop, seconds * 1000 + 600)
+    if (soundPref) {
+      setTimeout(() => {
+        command('unMute')
+        command('setVolume', [100])
+      }, 600)
+      setTimeout(() => command('unMute'), 1400)
+    }
   }
 
-  if (!id) return <img src={poster} alt={title} loading="lazy" onClick={() => onOpen?.({ type: 'img', src: poster })} />
+  const toggleSound = (e) => {
+    e.stopPropagation()
+    const next = !sound
+    soundPref = next
+    setSound(next)
+    command(next ? 'unMute' : 'mute')
+    if (next) command('setVolume', [100])
+  }
+
+  if (!id) {
+    return <img src={poster} alt={title} loading="lazy" onClick={() => onOpen?.({ type: 'img', src: poster })} />
+  }
 
   const src =
-    `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=0&playsinline=1` +
+    `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=0&playsinline=1&enablejsapi=1` +
+    `&origin=${encodeURIComponent(window.location.origin)}` +
     `&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&start=${start}&end=${start + seconds}`
 
   return (
@@ -56,11 +87,15 @@ export default function YouTubePreview({ url, start = 0, seconds = 6, poster, ti
       className={`yt-wrap ${playing ? 'playing' : ''}`}
       onMouseEnter={() => !isTouch() && play()}
       onMouseLeave={() => !isTouch() && stop()}
-      onClick={() => { stop(); onOpen?.({ type: 'yt', id }) }}
+      onClick={() => {
+        stop()
+        onOpen?.({ type: 'yt', id })
+      }}
     >
       <img src={poster || `https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt={title} loading="lazy" />
       {playing && (
         <iframe
+          ref={frame}
           className={loaded ? 'show' : ''}
           src={src}
           title={title}
@@ -70,6 +105,16 @@ export default function YouTubePreview({ url, start = 0, seconds = 6, poster, ti
       )}
       <span className="play-badge">▶</span>
       {playing && loaded && <span className="preview-tag">Preview</span>}
+      {playing && (
+        <button
+          type="button"
+          className="yt-sound"
+          onClick={toggleSound}
+          aria-label={sound ? 'Mute' : 'Turn sound on'}
+        >
+          {sound ? '🔊' : '🔇'} {lang === 'hi' ? 'आवाज़' : 'Sound'}
+        </button>
+      )}
     </div>
   )
 }

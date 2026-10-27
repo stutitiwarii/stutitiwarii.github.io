@@ -6,6 +6,12 @@ import Reveal from './Reveal'
 import RevealText from './RevealText'
 import YouTubePreview from './YouTubePreview'
 
+// pulls the file id out of a Google Drive share link
+const getDriveId = (url = '') => {
+  const m = String(url).match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^\s]*?id=)([\w-]+)/)
+  return m ? m[1] : null
+}
+
 export default function Portfolio({ s }) {
   const { t } = useLang()
   const all = useTable('portfolio_items')
@@ -47,45 +53,57 @@ export default function Portfolio({ s }) {
 
         <motion.div layout className="work-grid">
           <AnimatePresence mode="popLayout">
-            {shown.map((i) => (
-              <motion.article
-                layout
-                key={i.id}
-                className="work-card"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.6 }}
-              >
-                <div className="work-media">
-                  {i.youtube_url ? (
-                    <YouTubePreview
-                      url={i.youtube_url}
-                      start={i.preview_start || 0}
-                      seconds={i.preview_seconds || 6}
-                      poster={i.image_url}
-                      title={i.title}
-                      onOpen={setModal}
-                    />
-                  ) : i.video_url ? (
-                    <video src={i.video_url} poster={i.image_url} muted loop playsInline autoPlay />
-                  ) : (
-                    <img
-                      src={i.image_url}
-                      alt={i.title}
-                      loading="lazy"
-                      onClick={() => setModal({ type: 'img', src: i.image_url })}
-                    />
-                  )}
-                </div>
-                <div className="work-body">
-                  <small>{i.category}</small>
-                  <h3>{i.title}</h3>
-                  <p>{i.description}</p>
-                </div>
-              </motion.article>
-            ))}
+            {shown.map((i) => {
+              const driveId = getDriveId(i.video_url)
+              return (
+                <motion.article
+                  layout
+                  key={i.id}
+                  className="work-card"
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <div className="work-media">
+                    {i.youtube_url ? (
+                      <YouTubePreview
+                        url={i.youtube_url}
+                        start={i.preview_start || 0}
+                        seconds={i.preview_seconds || 6}
+                        poster={i.image_url}
+                        title={i.title}
+                        onOpen={setModal}
+                      />
+                    ) : driveId ? (
+                      <div className="yt-wrap" onClick={() => setModal({ type: 'drive', id: driveId })}>
+                        <img
+                          src={i.image_url || `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`}
+                          alt={i.title}
+                          loading="lazy"
+                        />
+                        <span className="play-badge">▶</span>
+                      </div>
+                    ) : i.video_url ? (
+                      <video src={i.video_url} poster={i.image_url} muted loop playsInline autoPlay />
+                    ) : (
+                      <img
+                        src={i.image_url}
+                        alt={i.title}
+                        loading="lazy"
+                        onClick={() => setModal({ type: 'img', src: i.image_url })}
+                      />
+                    )}
+                  </div>
+                  <div className="work-body">
+                    <small>{i.category}</small>
+                    <h3>{i.title}</h3>
+                    <p>{i.description}</p>
+                  </div>
+                </motion.article>
+              )
+            })}
           </AnimatePresence>
         </motion.div>
       </div>
@@ -114,6 +132,13 @@ export default function Portfolio({ s }) {
                     src={`https://www.youtube.com/embed/${modal.id}?autoplay=1&rel=0`}
                     title="video"
                     allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                  />
+                ) : modal.type === 'drive' ? (
+                  <iframe
+                    src={`https://drive.google.com/file/d/${modal.id}/preview`}
+                    title="video"
+                    allow="autoplay; fullscreen"
                     allowFullScreen
                   />
                 ) : (
