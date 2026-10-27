@@ -3,6 +3,8 @@ import { supabase } from '../supabaseClient'
 import { useLang } from '../i18n/context'
 import { localize } from '../i18n/strings'
 
+let channelCount = 0
+
 // Loads a whole table and refreshes automatically when you edit it in Supabase
 export function useTable(table, orderBy = 'sort_order') {
   const { lang } = useLang()
@@ -15,7 +17,7 @@ export function useTable(table, orderBy = 'sort_order') {
     }
     load()
     const channel = supabase
-      .channel(`rt-${table}`)
+      .channel(`rt-${table}-${++channelCount}`)
       .on('postgres_changes', { event: '*', schema: 'public', table }, load)
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -36,7 +38,7 @@ export function useSettings() {
     }
     load()
     const channel = supabase
-      .channel('rt-settings')
+      .channel(`rt-settings-${++channelCount}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, load)
       .subscribe()
     return () => { supabase.removeChannel(channel) }
