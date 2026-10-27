@@ -81,9 +81,25 @@ function PhotoTrail({ images, hostRef }) {
   ))
 }
 
+// true on phones and narrow windows
+function useNarrow(px = 860) {
+  const [narrow, setNarrow] = useState(() => typeof window !== 'undefined' && window.innerWidth <= px)
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${px}px)`)
+    const on = () => setNarrow(mq.matches)
+    on()
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [px])
+  return narrow
+}
+
+const num = (v, d) => (v === undefined || v === '' || !Number.isFinite(Number(v)) ? d : Number(v))
+
 export default function Hero({ s }) {
   const { t } = useLang()
   const calm = useReducedMotion()
+  const narrow = useNarrow()
   const ref = useRef(null)
   const words = (s.hero_title || '').split(' ')
 
@@ -94,13 +110,28 @@ export default function Hero({ s }) {
     [gallery]
   )
 
-  // parallax: values change as the hero scrolls out of view
+  // how strong the dark layer over the background image is (100 = as before, 0 = none)
+  const overlay = Math.min(100, Math.max(0, num(s.hero_overlay, 100))) / 100
+
+  // layout numbers you can change from Supabase (desktop only)
+  const scriptW = num(s.hero_script_width, 36) // vw
+  const scriptTop = num(s.hero_script_top, 14) // % of the hero
+  const scriptLeft = num(s.hero_script_left, 4) // %
+  const cutH = num(s.hero_cutout_height, 88) // % of the hero
+  const cutRight = num(s.hero_cutout_right, 5) // vw
+
+  const hasCut = !!s.hero_cutout
+  const hasScript = !!s.hero_script
+
+  // parallax: each layer moves at its own speed as the hero scrolls out of view
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const bgY = useTransform(scrollYProgress, [0, 1], calm ? ['0%', '0%'] : ['0%', '10%'])
   const textY = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, 90])
   const textOpacity = useTransform(scrollYProgress, [0, 0.75], calm ? [1, 1] : [1, 0])
   const shapeA = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, -140])
   const shapeB = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, 180])
+  const cutY = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, 70])
+  const scriptY = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, -70])
 
   // the glow follows the mouse (PC only, the CSS hides it on touch screens)
   const onMove = (e) => {
@@ -111,25 +142,85 @@ export default function Hero({ s }) {
     el.style.setProperty('--sy', `${e.clientY - r.top}px`)
   }
 
+  // positions are set here (not in the CSS file), so they always apply
+  const sectionStyle = {
+    backgroundColor: '#0b0b0d',
+    // keeps the text clear of the cutout on the right
+    paddingRight: hasCut && !narrow ? `max(6%, ${cutRight + 12}vw)` : undefined,
+    // keeps the text below the script
+    paddingTop: hasScript ? (narrow ? 170 : 'max(190px, 22vh)') : undefined,
+  }
+
+  const scriptStyle = {
+    position: 'absolute',
+    zIndex: 2,
+    left: narrow ? '4%' : `${scriptLeft}%`,
+    top: narrow ? 92 : `max(96px, ${scriptTop}%)`,
+    width: narrow ? 'min(68vw, 340px)' : `min(${scriptW}vw, 62vh, 700px)`,
+    height: 'auto',
+    maxWidth: 'none',
+    pointerEvents: 'none',
+    filter: 'drop-shadow(0 6px 24px rgba(0,0,0,.35))',
+    y: scriptY,
+  }
+
+  const cutStyle = {
+    position: 'absolute',
+    zIndex: 2,
+    right: narrow ? '-2%' : `${cutRight}vw`,
+    bottom: 0,
+    height: narrow ? '52%' : `min(${cutH}%, 920px)`,
+    width: 'auto',
+    maxWidth: 'none',
+    pointerEvents: 'none',
+    filter: 'drop-shadow(0 0 40px rgba(0,0,0,.45))',
+    y: cutY,
+  }
+
   return (
-    <section id="top" className="hero" ref={ref} onMouseMove={onMove}>
+    <section id="top" className="hero" ref={ref} onMouseMove={onMove} style={sectionStyle}>
       <motion.div className="hero-parallax" style={{ y: bgY }}>
         <motion.div
           className="hero-bg"
-          style={{ backgroundImage: `url(${s.hero_image})` }}
+          style={{ backgroundImage: s.hero_image ? `url(${s.hero_image})` : 'none' }}
           initial={{ scale: 1.2 }}
           animate={{ scale: 1 }}
           transition={{ duration: 2.8, ease: 'easeOut' }}
         />
       </motion.div>
-      <div className="hero-overlay" />
+      <div className="hero-overlay" style={{ opacity: overlay }} />
       <div className="hero-spot" />
       <motion.div className="hero-shape a" style={{ y: shapeA }} />
       <motion.div className="hero-shape b" style={{ y: shapeB }} />
 
       {s.hero_trail !== 'false' && <PhotoTrail images={trailImages} hostRef={ref} />}
 
-      <motion.div className="hero-inner" style={{ y: textY, opacity: textOpacity }}>
+      {/* these two layers sit above the dark overlay, so they are never dimmed */}
+      {hasScript && (
+        <motion.img
+          src={s.hero_script}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          style={scriptStyle}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
+      {hasCut && (
+        <motion.img
+          src={s.hero_cutout}
+          alt={s.brand_name || ''}
+          draggable={false}
+          style={cutStyle}
+          initial={{ opacity: 0, x: 70 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
+
+      <motion.div className="hero-inner" style={{ position: 'relative', zIndex: 3, y: textY, opacity: textOpacity }}>
         <motion.span
           className="hero-tag"
           initial={{ opacity: 0, y: 20 }}

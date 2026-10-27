@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
 import { useLang } from '../i18n/context'
@@ -15,23 +15,71 @@ const HEART = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 4.5 6.4 4.5c2.1 0 3.8 1.2 5.6 
 const CHAT = 'M21 11.5a8.5 8.5 0 0 1-12.4 7.6L3 20.5l1.5-5.3A8.5 8.5 0 1 1 21 11.5z'
 const SEND = 'M22 3 2 10.5l7.5 3L12.5 21 22 3zM9.5 13.5 22 3'
 
-function Media({ r }) {
+function Media({ r, sound }) {
   const yt = getYouTubeId(r.youtube_url)
+  const frame = useRef(null)
+  const vid = useRef(null)
+
+  // sound on/off for YouTube (through its player API) and for uploaded video files
+  const apply = () => {
+    if (yt) {
+      const send = (func, args = []) =>
+        frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*')
+      if (sound) {
+        send('unMute')
+        send('setVolume', [100])
+      } else {
+        send('mute')
+      }
+    } else if (vid.current) {
+      vid.current.muted = !sound
+      if (sound) vid.current.volume = 1
+    }
+  }
+
+  useEffect(() => {
+    apply()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sound])
 
   if (yt) {
-   const short = /\/shorts\//.test(r.youtube_url || '')
+    // always a wide (16:9) player, cropped to the phone shape. A tall player makes YouTube
+    // show its own Shorts buttons on top of the reel.
     const src =
       `https://www.youtube.com/embed/${yt}?autoplay=1&mute=1&controls=0&loop=1&playlist=${yt}` +
-      `&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&start=${r.start_at || 0}`
+      `&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&start=${r.start_at || 0}` +
+      `&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`
     return (
       <>
         <img className="reel-img" src={r.image_url || `https://img.youtube.com/vi/${yt}/hqdefault.jpg`} alt="" draggable={false} />
-        <iframe className={`reel-frame ${short ? 'short' : ''}`} src={src} title={r.caption || 'reel'} allow="autoplay; encrypted-media" />
+        <iframe
+          ref={frame}
+          className="reel-frame"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            height: '100%',
+            width: '385%',
+            transform: 'translate(-50%, -50%)',
+            border: 0,
+            pointerEvents: 'none',
+          }}
+          src={src}
+          title={r.caption || 'reel'}
+          allow="autoplay; encrypted-media"
+          onLoad={() => {
+            if (sound) {
+              setTimeout(apply, 700)
+              setTimeout(apply, 1500)
+            }
+          }}
+        />
       </>
     )
   }
   if (r.video_url) {
-    return <video className="reel-img" src={r.video_url} poster={r.image_url || undefined} muted loop playsInline autoPlay />
+    return <video ref={vid} className="reel-img" src={r.video_url} poster={r.image_url || undefined} muted loop playsInline autoPlay />
   }
   if (r.image_url) return <img className="reel-img" src={r.image_url} alt={r.caption || ''} draggable={false} />
   return <div className="reel-fallback" />
@@ -42,6 +90,7 @@ export default function ReelPhone({ s }) {
   const calm = useReducedMotion()
   const reels = useTable('reels').filter((r) => r.is_visible !== false)
   const [idx, setIdx] = useState(0)
+  const [sound, setSound] = useState(false)
 
   const n = reels.length
   const at = n ? idx % n : 0
@@ -81,6 +130,8 @@ export default function ReelPhone({ s }) {
   const hi = lang === 'hi'
   const handle = s.phone_handle || `@${(s.brand_name || '').toLowerCase().replace(/\s+/g, '')}`
   const avatar = s.phone_avatar || s.about_image
+  const hasSound = !!(getYouTubeId(cur.youtube_url) || cur.video_url)
+  const step = (d) => setIdx((i) => (i + d + n) % n)
 
   return (
     <section id="reels" className="section brands-sec">
@@ -109,7 +160,7 @@ export default function ReelPhone({ s }) {
                   <div className="phone">
                     <div
                       className="phone-screen"
-                      onClick={() => n > 1 && setIdx((i) => (i + 1) % n)}
+                      onClick={() => n > 1 && step(1)}
                       role="button"
                       aria-label="Next reel"
                     >
@@ -122,7 +173,7 @@ export default function ReelPhone({ s }) {
                           exit={{ y: '-100%' }}
                           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         >
-                          <Media r={cur} />
+                          <Media r={cur} sound={sound} />
                           <div className="reel-shade" />
 
                           <div className="reel-side">
@@ -174,11 +225,37 @@ export default function ReelPhone({ s }) {
                         )}
                         {n > 8 && <em>{at + 1}/{n}</em>}
                       </div>
+
+                      {hasSound && (
+                        <button
+                          type="button"
+                          className="reel-sound"
+                          style={{ position: 'absolute', top: 88, right: 12, zIndex: 13 }}
+                          aria-label={sound ? 'Mute' : 'Turn sound on'}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSound((v) => !v)
+                          }}
+                        >
+                          {sound ? '🔊' : '🔇'}
+                        </button>
+                      )}
                     </div>
                     <div className="phone-gloss" />
                   </div>
                 </motion.div>
               </div>
+            </div>
+
+            {/* normal buttons outside the 3D phone, so they always work on PC */}
+            <div className="reel-ctrl">
+              {n > 1 && <button type="button" onClick={() => step(-1)} aria-label="Previous reel">‹</button>}
+              {hasSound && (
+                <button type="button" className={sound ? 'on' : ''} onClick={() => setSound((v) => !v)}>
+                  {sound ? '🔊' : '🔇'} {sound ? (hi ? 'आवाज़ चालू' : 'Sound on') : hi ? 'आवाज़ बंद' : 'Sound off'}
+                </button>
+              )}
+              {n > 1 && <button type="button" onClick={() => step(1)} aria-label="Next reel">›</button>}
             </div>
           </Reveal>
         </div>

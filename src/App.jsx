@@ -17,8 +17,10 @@ import SkillOrbit from './components/SkillOrbit'
 import Resume from './components/Resume'
 import Portfolio from './components/Portfolio'
 import Gallery from './components/Gallery'
+import Awards from './components/Awards'
 import SocialPosts from './components/SocialPosts'
 import ReelPhone from './components/ReelPhone'
+import BlogSlider from './components/BlogSlider'
 import Services from './components/Services'
 import BrandGlobe from './components/BrandGlobe'
 import Testimonials from './components/Testimonials'
@@ -71,8 +73,10 @@ export default function App() {
         <Resume s={s} />
         <Portfolio s={s} />
         <Gallery s={s} />
+        <Awards s={s} />
         <SocialPosts s={s} />
         <ReelPhone s={s} />
+        <BlogSlider s={s} />
         <Services s={s} />
         <BrandGlobe s={s} />
         <Testimonials s={s} />
