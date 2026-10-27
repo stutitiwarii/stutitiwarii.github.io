@@ -18,6 +18,7 @@ import Resume from './components/Resume'
 import Portfolio from './components/Portfolio'
 import Gallery from './components/Gallery'
 import SocialPosts from './components/SocialPosts'
+import ReelPhone from './components/ReelPhone'
 import Services from './components/Services'
 import BrandGlobe from './components/BrandGlobe'
 import Testimonials from './components/Testimonials'
@@ -71,6 +72,7 @@ export default function App() {
         <Portfolio s={s} />
         <Gallery s={s} />
         <SocialPosts s={s} />
+        <ReelPhone s={s} />
         <Services s={s} />
         <BrandGlobe s={s} />
         <Testimonials s={s} />

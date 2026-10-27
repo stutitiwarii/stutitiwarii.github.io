@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'framer-motion'
 import { useLang } from '../i18n/context'
 
-export function getYouTubeId(url = '') {
+export function getYouTubeId(url) {
+  if (!url || typeof url !== 'string') return null
   const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/)
   return m ? m[1] : null
 }

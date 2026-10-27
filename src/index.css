@@ -942,3 +942,105 @@ html[lang="hi"] .orbit-chip { font-size: clamp(.72rem, 2.2cqw, .98rem); }
 
 /* ================= RESUME: "SKILLS" HEADING FIX ================= */
 .skills-wrap h3 { text-align: center; font-size: 1.8rem; margin-bottom: 40px; }
+
+/* ================= 3D PHONE ================= */
+.phone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.phone-copy .section-head { text-align: left; margin-bottom: 26px; }
+.phone-copy .section-head h2::after { margin-left: 0; }
+.phone-sub { color: var(--muted); max-width: 460px; margin-bottom: 32px; }
+
+.phone-stage { display: grid; place-items: center; padding: 30px 0; perspective: 1200px; }
+.phone-float { animation: phone-float 6s ease-in-out infinite; transform-style: preserve-3d; }
+@keyframes phone-float { 50% { transform: translateY(-12px); } }
+.phone-tilt { transform-style: preserve-3d; will-change: transform; }
+
+.phone {
+  position: relative; width: min(74vw, 290px); aspect-ratio: 9 / 19; padding: 10px; border-radius: 46px;
+  background: linear-gradient(145deg, #34343a, #0b0b0d);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.12), 0 40px 80px rgba(0,0,0,.55),
+              0 0 90px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.phone::before, .phone::after { content: ''; position: absolute; width: 3px; border-radius: 3px; background: #2a2a2e; }
+.phone::before { right: -3px; top: 24%; height: 12%; }
+.phone::after { left: -3px; top: 20%; height: 7%; box-shadow: 0 46px 0 #2a2a2e; }
+
+.phone-screen {
+  position: relative; width: 100%; height: 100%; border-radius: 37px; overflow: hidden;
+  background: #000; cursor: pointer; isolation: isolate;
+}
+.phone-island {
+  position: absolute; top: 10px; left: 50%; width: 30%; height: 22px; transform: translateX(-50%);
+  border-radius: 20px; background: #000; z-index: 12; pointer-events: none;
+}
+.phone-gloss {
+  position: absolute; inset: 0; border-radius: 46px; pointer-events: none; z-index: 20;
+  background: linear-gradient(125deg, rgba(255,255,255,.16), transparent 32%, transparent 72%, rgba(255,255,255,.06));
+}
+
+.reel { position: absolute; inset: 0; color: #fff; }
+.reel-img, .reel-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.reel-fallback { background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 55%, #000), #14141a 70%); }
+.reel-frame {
+  position: absolute; top: 50%; left: 50%; height: 100%; width: 385%; transform: translate(-50%, -50%);
+  border: 0; pointer-events: none;
+}
+.reel-frame.short { width: 100%; }
+.reel-shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,.5), transparent 24%, transparent 55%, rgba(0,0,0,.78));
+}
+
+.reel-bars { position: absolute; top: 40px; left: 12px; right: 12px; z-index: 11; display: flex; gap: 4px; }
+.reel-bar { flex: 1; height: 3px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,.35); }
+.reel-bar i { display: block; height: 100%; width: 0; background: #fff; }
+.reel-bar i.done { width: 100%; }
+.reel-bar i.run { animation: reel-fill linear forwards; }
+@keyframes reel-fill { from { width: 0; } to { width: 100%; } }
+
+.reel-head {
+  position: absolute; top: 52px; left: 12px; right: 12px; z-index: 11; color: #fff;
+  display: flex; align-items: center; gap: 8px; font-size: .78rem;
+}
+.reel-head img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid #fff; flex-shrink: 0; }
+.reel-head b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reel-head a { margin-left: auto; padding: 4px 12px; border: 1px solid #fff; border-radius: 6px; font-size: .7rem; flex-shrink: 0; }
+.reel-head em { margin-left: auto; font-style: normal; font-size: .7rem; opacity: .85; }
+
+.reel-side {
+  position: absolute; right: 12px; bottom: 90px; z-index: 11;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.reel-side span { display: grid; justify-items: center; gap: 2px; font-size: .68rem; }
+.reel-side svg { width: 26px; height: 26px; }
+
+.reel-bottom { position: absolute; left: 14px; right: 62px; bottom: 22px; z-index: 11; display: grid; gap: 10px; justify-items: start; }
+.reel-cap {
+  font-size: .8rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.reel-view {
+  padding: 5px 14px; border-radius: 50px; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+  background: var(--accent); color: #111; font-weight: 600;
+}
+html[lang="hi"] .reel-cap { font-size: .95rem; }
+html[lang="hi"] .reel-head { font-size: .92rem; }
+
+@media (hover: none) {
+  .phone-float { animation: phone-sway 9s ease-in-out infinite; }
+}
+@keyframes phone-sway {
+  0%, 100% { transform: translateY(0) rotateY(-9deg); }
+  50% { transform: translateY(-10px) rotateY(9deg); }
+}
+@media (max-width: 860px) {
+  .phone-grid { grid-template-columns: 1fr; gap: 20px; }
+  .phone-copy { text-align: center; }
+  .phone-copy .section-head { text-align: center; }
+  .phone-copy .section-head h2::after { margin-left: auto; }
+  .phone-sub { margin-left: auto; margin-right: auto; }
+  .phone-copy .hero-actions { justify-content: center !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-float { animation: none; }
+  .reel-bar i.run { animation: none; width: 100%; }
+}
