@@ -21,6 +21,7 @@ import Awards from './components/Awards'
 import SocialPosts from './components/SocialPosts'
 import ReelPhone from './components/ReelPhone'
 import BlogSlider from './components/BlogSlider'
+import WritingSlider from './components/WritingSlider'
 import Services from './components/Services'
 import BrandGlobe from './components/BrandGlobe'
 import Testimonials from './components/Testimonials'
@@ -77,6 +78,7 @@ export default function App() {
         <SocialPosts s={s} />
         <ReelPhone s={s} />
         <BlogSlider s={s} />
+        <WritingSlider s={s} />
         <Services s={s} />
         <BrandGlobe s={s} />
         <Testimonials s={s} />

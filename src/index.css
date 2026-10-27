@@ -1108,3 +1108,15 @@ html[lang="hi"] .blog-read { font-size: 1rem; }
   .slider.blogs .slide-caption { padding-bottom: 46px; }
   .slider.blogs .slide-caption p { display: none; }
 }
+
+/* ================= WRITING SLIDER ================= */
+.writing .post-card { flex: 0 0 min(380px, 84%); }
+.writing .post-media { aspect-ratio: 16 / 10; }
+.writing .post-badge { pointer-events: none; }
+.writing .post-link {
+  background: none; border: 0; padding: 10px 0 0; text-align: left; cursor: pointer; font-family: inherit;
+}
+.writing .post-link:hover { text-decoration: underline; text-underline-offset: 5px; }
+.writing .post-card[data-platform="article"] .post-badge,
+.writing .post-card[data-platform="script"] .post-badge { background: var(--accent); color: #111; }
+html[lang="hi"] .writing .post-link { font-size: 1rem; }

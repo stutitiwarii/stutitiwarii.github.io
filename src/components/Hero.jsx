@@ -113,12 +113,13 @@ export default function Hero({ s }) {
   // how strong the dark layer over the background image is (100 = as before, 0 = none)
   const overlay = Math.min(100, Math.max(0, num(s.hero_overlay, 100))) / 100
 
-  // layout numbers you can change from Supabase (desktop only)
-  const scriptW = num(s.hero_script_width, 36) // vw
-  const scriptTop = num(s.hero_script_top, 14) // % of the hero
-  const scriptLeft = num(s.hero_script_left, 4) // %
-  const cutH = num(s.hero_cutout_height, 88) // % of the hero
-  const cutRight = num(s.hero_cutout_right, 5) // vw
+  // layout numbers you can change from Supabase
+  const scriptW = num(s.hero_script_width, 36) // vw (desktop)
+  const scriptTop = num(s.hero_script_top, 14) // % of the hero (desktop)
+  const scriptLeft = num(s.hero_script_left, 4) // % (desktop)
+  const cutH = num(s.hero_cutout_height, 88) // % of the hero (desktop)
+  const cutRight = num(s.hero_cutout_right, 5) // vw (desktop)
+  const cutHMobile = num(s.hero_cutout_height_mobile, 44) // vh (phones)
 
   const hasCut = !!s.hero_cutout
   const hasScript = !!s.hero_script
@@ -143,13 +144,23 @@ export default function Hero({ s }) {
   }
 
   // positions are set here (not in the CSS file), so they always apply
-  const sectionStyle = {
-    backgroundColor: '#0b0b0d',
-    // keeps the text clear of the cutout on the right
-    paddingRight: hasCut && !narrow ? `max(6%, ${cutRight + 12}vw)` : undefined,
-    // keeps the text below the script
-    paddingTop: hasScript ? (narrow ? 170 : 'max(190px, 22vh)') : undefined,
-  }
+  const sectionStyle = narrow
+    ? {
+        // phones: script on top, then the text, then her cutout below it (no overlap)
+        backgroundColor: '#0b0b0d',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        paddingTop: hasScript ? 170 : 110,
+        paddingBottom: 0,
+      }
+    : {
+        backgroundColor: '#0b0b0d',
+        // keeps the text clear of the cutout on the right
+        paddingRight: hasCut ? `max(6%, ${cutRight + 12}vw)` : undefined,
+        // keeps the text below the script
+        paddingTop: hasScript ? 'max(190px, 22vh)' : undefined,
+      }
 
   const scriptStyle = {
     position: 'absolute',
@@ -164,18 +175,33 @@ export default function Hero({ s }) {
     y: scriptY,
   }
 
-  const cutStyle = {
-    position: 'absolute',
-    zIndex: 2,
-    right: narrow ? '-2%' : `${cutRight}vw`,
-    bottom: 0,
-    height: narrow ? '52%' : `min(${cutH}%, 920px)`,
-    width: 'auto',
-    maxWidth: 'none',
-    pointerEvents: 'none',
-    filter: 'drop-shadow(0 0 40px rgba(0,0,0,.45))',
-    y: cutY,
-  }
+  const cutStyle = narrow
+    ? {
+        position: 'relative',
+        zIndex: 2,
+        order: 2,
+        marginTop: 'auto',
+        height: `min(${cutHMobile}vh, 460px)`,
+        width: 'auto',
+        maxWidth: 'none',
+        flexShrink: 0,
+        alignSelf: 'center',
+        pointerEvents: 'none',
+        filter: 'drop-shadow(0 0 40px rgba(0,0,0,.45))',
+        y: cutY,
+      }
+    : {
+        position: 'absolute',
+        zIndex: 2,
+        right: `${cutRight}vw`,
+        bottom: 0,
+        height: `min(${cutH}%, 920px)`,
+        width: 'auto',
+        maxWidth: 'none',
+        pointerEvents: 'none',
+        filter: 'drop-shadow(0 0 40px rgba(0,0,0,.45))',
+        y: cutY,
+      }
 
   return (
     <section id="top" className="hero" ref={ref} onMouseMove={onMove} style={sectionStyle}>
@@ -214,13 +240,23 @@ export default function Hero({ s }) {
           alt={s.brand_name || ''}
           draggable={false}
           style={cutStyle}
-          initial={{ opacity: 0, x: 70 }}
+          initial={{ opacity: 0, x: narrow ? 0 : 70, y: narrow ? 40 : 0 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
         />
       )}
 
-      <motion.div className="hero-inner" style={{ position: 'relative', zIndex: 3, y: textY, opacity: textOpacity }}>
+      <motion.div
+        className="hero-inner"
+        style={{
+          position: 'relative',
+          zIndex: 3,
+          order: narrow ? 1 : undefined,
+          marginBottom: narrow ? 24 : undefined,
+          y: textY,
+          opacity: textOpacity,
+        }}
+      >
         <motion.span
           className="hero-tag"
           initial={{ opacity: 0, y: 20 }}
@@ -278,7 +314,7 @@ export default function Hero({ s }) {
         </motion.div>
       </motion.div>
 
-      <div className="scroll-hint" />
+      {!narrow && <div className="scroll-hint" />}
     </section>
   )
 }
