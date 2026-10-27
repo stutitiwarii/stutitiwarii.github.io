@@ -13,6 +13,7 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Marquee from './components/Marquee'
 import About from './components/About'
+import SkillOrbit from './components/SkillOrbit'
 import Resume from './components/Resume'
 import Portfolio from './components/Portfolio'
 import Gallery from './components/Gallery'
@@ -65,6 +66,7 @@ export default function App() {
         <Hero key={String(loaded)} s={s} />
         <Marquee s={s} />
         <About s={s} />
+        <SkillOrbit s={s} />
         <Resume s={s} />
         <Portfolio s={s} />
         <Gallery s={s} />

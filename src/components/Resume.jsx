@@ -28,7 +28,10 @@ export default function Resume({ s }) {
   const { t } = useLang()
   const education = useTable('education')
   const experience = useTable('experience')
-  const skills = useTable('skills')
+  const allSkills = useTable('skills')
+
+  // only skills with "in_resume" ticked show as bars here (the orbit has its own switch)
+  const skills = allSkills.filter((sk) => sk.in_resume !== false)
 
   // group skills by category
   const groups = skills.reduce((acc, sk) => {
