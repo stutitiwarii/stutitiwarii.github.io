@@ -1,20 +1,29 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLang } from '../i18n/context'
 
-export default function Loader({ name = '', onDone }) {
+export default function Loader({ name = '', ready = true, onDone }) {
   const { lang } = useLang()
+  const [timeUp, setTimeUp] = useState(false)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    const t = setTimeout(onDone, 2200)
+    const min = setTimeout(() => setTimeUp(true), 2200) // shortest time the screen stays
+    const max = setTimeout(onDone, 9000) // never wait longer than this
     return () => {
-      clearTimeout(t)
+      clearTimeout(min)
+      clearTimeout(max)
       document.body.style.overflow = ''
     }
   }, [onDone])
 
+  // leave once the animation is done AND her content has arrived
+  useEffect(() => {
+    if (timeUp && ready) onDone()
+  }, [timeUp, ready, onDone])
+
   const parts = lang === 'hi' ? name.split(' ').map((w) => w + '\u00A0') : name.split('')
+  const waiting = timeUp && !ready
 
   return (
     <motion.div
@@ -36,13 +45,14 @@ export default function Loader({ name = '', onDone }) {
           </motion.span>
         ))}
       </div>
-      <div className="loader-line">
+      <div className={`loader-line ${waiting ? 'waiting' : ''}`}>
         <motion.span
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.8, ease: 'easeInOut' }}
         />
       </div>
+      {waiting && <p className="loader-hint">{lang === 'hi' ? 'लोड हो रहा है…' : 'Loading…'}</p>}
     </motion.div>
   )
 }

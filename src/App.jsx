@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { useSettings } from './hooks/useSupabase'
+import { useSettings, useDataStatus } from './hooks/useSupabase'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import useTheme from './hooks/useTheme'
 import Loader from './components/Loader'
@@ -10,6 +10,8 @@ import CardEffects from './components/CardEffects'
 import MediaReveal from './components/MediaReveal'
 import WhatsAppButton from './components/WhatsAppButton'
 import ShareButton from './components/ShareButton'
+import PageSkeleton from './components/PageSkeleton'
+import DataNotice from './components/DataNotice'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Marquee from './components/Marquee'
@@ -32,6 +34,7 @@ import Footer from './components/Footer'
 
 export default function App() {
   const s = useSettings()
+  const status = useDataStatus()
   const [loaded, setLoaded] = useState(false)
   const finish = useCallback(() => setLoaded(true), [])
   const [theme, toggleTheme] = useTheme(s.default_theme)
@@ -60,7 +63,7 @@ export default function App() {
   return (
     <>
       <AnimatePresence>
-        {!loaded && <Loader key="loader" name={s.brand_name} onDone={finish} />}
+        {!loaded && <Loader key="loader" name={s.brand_name} ready={status.ready} onDone={finish} />}
       </AnimatePresence>
 
       <Cursor />
@@ -70,6 +73,7 @@ export default function App() {
       <Navbar s={s} theme={theme} onToggleTheme={toggleTheme} />
       <main>
         <Hero key={String(loaded)} s={s} />
+        {status.booting && <PageSkeleton />}
         <Marquee s={s} />
         <About s={s} />
         <SkillOrbit s={s} />
@@ -90,6 +94,7 @@ export default function App() {
       <Footer s={s} />
       <WhatsAppButton s={s} />
       <ShareButton s={s} />
+      <DataNotice empty={Object.keys(s).length === 0} />
     </>
   )
 }
