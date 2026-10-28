@@ -1241,3 +1241,27 @@ html[lang="hi"] .cmp-tl-end, html[lang="hi"] .cmp-now { font-size: 1rem; }
   .cmp-arrow.prev { left: 8px; }
   .cmp-arrow.next { right: 8px; }
 }
+
+/* ================= CAMPAIGN GRID ON/OFF SWITCH ================= */
+.cmp-switch-row { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.cmp-switch {
+  display: inline-flex; align-items: center; gap: 10px; padding: 6px 10px 6px 16px; border-radius: 50px;
+  border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer;
+  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; transition: border-color .3s;
+}
+.cmp-switch:hover { border-color: var(--cmp); }
+.cmp-switch i { position: relative; width: 40px; height: 22px; border-radius: 50px; background: var(--line); transition: .3s; }
+.cmp-switch i b { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: .3s; }
+.cmp-switch.on i { background: var(--cmp); }
+.cmp-switch.on i b { left: 21px; }
+.cmp-switch em { font-style: normal; font-weight: 600; min-width: 2.6em; text-align: left; color: var(--muted); }
+.cmp-switch.on em { color: var(--cmp); }
+
+.cmp-single {
+  display: block; width: 100%; padding: 0; border: 0; border-radius: 12px; overflow: hidden;
+  cursor: zoom-in; background: #111; box-shadow: 0 20px 50px rgba(0,0,0,.4);
+}
+.cmp-single img { width: 100%; height: auto; display: block; }
+.cmp-single .cmp-ph.big { height: auto; aspect-ratio: 1; border-radius: 0; }
+
+html[lang="hi"] .cmp-switch { font-size: 1rem; }

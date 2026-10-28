@@ -47,6 +47,11 @@ function CampaignCard({ c, posts, hi }) {
   }, [posts, cols, rows])
   const n = tiles.length
 
+  // grid on/off: the visitor's click wins, otherwise the "show_grid" value from Supabase
+  const [view, setView] = useState(null)
+  const grid = view === null ? c.show_grid !== false : view
+  const cover = c.cover_image_url || c.grid_image_url || tiles.find((t) => t.image_url)?.image_url || ''
+
   // when only one combined grid image is used, measure it so the tiles keep the right shape
   const slicing = !!c.grid_image_url && tiles.every((t) => !t.image_url)
   const [natural, setNatural] = useState(null)
@@ -63,17 +68,17 @@ function CampaignCard({ c, posts, hi }) {
   const [k, setK] = useState(0)
   const [paused, setPaused] = useState(false)
   const [hold, setHold] = useState(false)
-  const [open, setOpen] = useState(null)
+  const [open, setOpen] = useState(null) // a number = that tile, 'single' = the one photo
 
   const kk = k % n
   const tileOf = (step) => (newestFirst ? n - 1 - step : step)
   const activeTile = tileOf(kk)
 
   useEffect(() => {
-    if (!inView || paused || hold || n < 2 || calm) return
+    if (!grid || !inView || paused || hold || n < 2 || calm) return
     const id = setInterval(() => setK((v) => (v + 1) % n), 1600)
     return () => clearInterval(id)
-  }, [inView, paused, hold, n, calm])
+  }, [grid, inView, paused, hold, n, calm])
 
   useEffect(() => () => clearTimeout(holdTimer.current), [])
 
@@ -84,12 +89,13 @@ function CampaignCard({ c, posts, hi }) {
     holdTimer.current = setTimeout(() => setHold(false), 5000)
   }
 
-  // full screen popup: lock page scroll, Esc closes, arrow keys move
+  // full screen popup: lock page scroll, Esc closes, arrow keys move between tiles
   useEffect(() => {
     if (open === null) return
     document.body.style.overflow = 'hidden'
     const onKey = (e) => {
       if (e.key === 'Escape') setOpen(null)
+      if (open === 'single') return
       if (e.key === 'ArrowRight') setOpen((i) => (i + 1) % n)
       if (e.key === 'ArrowLeft') setOpen((i) => (i - 1 + n) % n)
     }
@@ -100,7 +106,8 @@ function CampaignCard({ c, posts, hi }) {
     }
   }, [open, n])
 
-  const lb = open !== null ? tiles[open % n] : null
+  const isSingle = open === 'single'
+  const lb = typeof open === 'number' ? tiles[open % n] : null
   const move = (e, d) => {
     e.stopPropagation()
     setOpen((i) => (i + d + n) % n)
@@ -116,33 +123,76 @@ function CampaignCard({ c, posts, hi }) {
       {c.map_url && <img className="cmp-map" src={c.map_url} alt="" aria-hidden="true" draggable={false} />}
 
       <div className="cmp-grid-wrap">
-        <div
-          className="cmp-grid"
-          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-        >
-          {tiles.map((t, i) => (
-            <motion.button
-              key={t.id}
+        {c.grid_button !== false && (
+          <div className="cmp-switch-row">
+            <button
               type="button"
-              className={`cmp-tile ${i === activeTile ? 'on' : ''}`}
-              onClick={() => setOpen(i)}
-              aria-label={t.label || `Post ${i + 1}`}
-              initial={
-                calm
-                  ? false
-                  : { opacity: 0, scale: 0.5, x: (rnd(i, 1) - 0.5) * 240, y: (rnd(i, 2) - 0.5) * 240, rotate: (rnd(i, 3) - 0.5) * 40 }
-              }
-              whileInView={{ opacity: 1, scale: 1, x: 0, y: 0, rotate: 0 }}
-              whileHover={calm ? undefined : { scale: 1.05, zIndex: 3 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.9, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              role="switch"
+              aria-checked={grid}
+              className={`cmp-switch ${grid ? 'on' : ''}`}
+              onClick={() => setView(!grid)}
             >
-              <TileMedia t={t} c={c} cols={cols} rows={rows} />
+              <span>{hi ? 'ग्रिड' : 'Grid'}</span>
+              <i><b /></i>
+              <em>{grid ? (hi ? 'चालू' : 'ON') : hi ? 'बंद' : 'OFF'}</em>
+            </button>
+          </div>
+        )}
+
+        <AnimatePresence mode="wait">
+          {grid ? (
+            <motion.div
+              key="grid"
+              className="cmp-grid"
+              style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+            >
+              {tiles.map((t, i) => (
+                <motion.button
+                  key={t.id}
+                  type="button"
+                  className={`cmp-tile ${i === activeTile ? 'on' : ''}`}
+                  onClick={() => setOpen(i)}
+                  aria-label={t.label || `Post ${i + 1}`}
+                  initial={
+                    calm
+                      ? false
+                      : { opacity: 0, scale: 0.5, x: (rnd(i, 1) - 0.5) * 240, y: (rnd(i, 2) - 0.5) * 240, rotate: (rnd(i, 3) - 0.5) * 40 }
+                  }
+                  whileInView={{ opacity: 1, scale: 1, x: 0, y: 0, rotate: 0 }}
+                  whileHover={calm ? undefined : { scale: 1.05, zIndex: 3 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.9, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <TileMedia t={t} c={c} cols={cols} rows={rows} />
+                </motion.button>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.button
+              key="single"
+              type="button"
+              className="cmp-single"
+              onClick={() => setOpen('single')}
+              aria-label={c.title}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.35 }}
+            >
+              {cover ? (
+                <img src={cover} alt={c.title || ''} draggable={false} />
+              ) : (
+                <div className="cmp-ph big"><b>▦</b></div>
+              )}
             </motion.button>
-          ))}
-        </div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="cmp-info">
@@ -180,7 +230,7 @@ function CampaignCard({ c, posts, hi }) {
         )}
       </div>
 
-      {n > 1 && (
+      {grid && n > 1 && (
         <div className="cmp-timeline" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
           <span className="cmp-tl-end">{c.timeline_start}</span>
           <div className="cmp-tl-track">
@@ -202,7 +252,7 @@ function CampaignCard({ c, posts, hi }) {
       )}
 
       <AnimatePresence>
-        {lb && (
+        {(isSingle || lb) && (
           <motion.div
             className="modal"
             data-lenis-prevent
@@ -211,38 +261,49 @@ function CampaignCard({ c, posts, hi }) {
             exit={{ opacity: 0 }}
             onClick={() => setOpen(null)}
           >
-            {n > 1 && <button type="button" className="cmp-arrow prev" onClick={(e) => move(e, -1)} aria-label="Previous">‹</button>}
-            {n > 1 && <button type="button" className="cmp-arrow next" onClick={(e) => move(e, 1)} aria-label="Next">›</button>}
+            {lb && n > 1 && <button type="button" className="cmp-arrow prev" onClick={(e) => move(e, -1)} aria-label="Previous">‹</button>}
+            {lb && n > 1 && <button type="button" className="cmp-arrow next" onClick={(e) => move(e, 1)} aria-label="Next">›</button>}
 
             <motion.div
-              key={lb.id}
+              key={isSingle ? 'single' : lb.id}
               className="cmp-lb"
+              style={isSingle ? { width: 'min(92vw, 900px)' } : undefined}
               initial={{ scale: 0.94, y: 24 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.94, y: 24 }}
               onClick={(e) => e.stopPropagation()}
             >
               <button className="modal-close" onClick={() => setOpen(null)} aria-label="Close">✕</button>
-              {lb.image_url ? (
-                <img src={lb.image_url} alt={lb.label || ''} draggable={false} />
-              ) : c.grid_image_url ? (
-                <div
-                  className="cmp-lb-slice"
-                  style={{ ...sliceStyle(c.grid_image_url, lb.index % cols, Math.floor(lb.index / cols), cols, rows), aspectRatio: ratio }}
-                />
+
+              {isSingle ? (
+                <>
+                  {cover ? <img src={cover} alt={c.title || ''} draggable={false} /> : <div className="cmp-ph big"><b>▦</b></div>}
+                  <div className="cmp-lb-cap"><b>{c.title}</b></div>
+                </>
               ) : (
-                <div className="cmp-ph big"><b>{String(lb.index + 1).padStart(2, '0')}</b></div>
+                <>
+                  {lb.image_url ? (
+                    <img src={lb.image_url} alt={lb.label || ''} draggable={false} />
+                  ) : c.grid_image_url ? (
+                    <div
+                      className="cmp-lb-slice"
+                      style={{ ...sliceStyle(c.grid_image_url, lb.index % cols, Math.floor(lb.index / cols), cols, rows), aspectRatio: ratio }}
+                    />
+                  ) : (
+                    <div className="cmp-ph big"><b>{String(lb.index + 1).padStart(2, '0')}</b></div>
+                  )}
+                  <div className="cmp-lb-cap">
+                    {lb.label && <b>{lb.label}</b>}
+                    {lb.caption && <span>{lb.caption}</span>}
+                    <em>{(open % n) + 1} / {n}</em>
+                    {lb.post_url && (
+                      <a className="btn" href={lb.post_url} target="_blank" rel="noopener noreferrer" style={{ padding: '8px 22px', marginTop: 6 }}>
+                        {hi ? 'पोस्ट देखें' : 'View post'} ↗
+                      </a>
+                    )}
+                  </div>
+                </>
               )}
-              <div className="cmp-lb-cap">
-                {lb.label && <b>{lb.label}</b>}
-                {lb.caption && <span>{lb.caption}</span>}
-                <em>{(open % n) + 1} / {n}</em>
-                {lb.post_url && (
-                  <a className="btn" href={lb.post_url} target="_blank" rel="noopener noreferrer" style={{ padding: '8px 22px', marginTop: 6 }}>
-                    {hi ? 'पोस्ट देखें' : 'View post'} ↗
-                  </a>
-                )}
-              </div>
             </motion.div>
           </motion.div>
         )}
