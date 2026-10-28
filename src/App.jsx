@@ -9,6 +9,7 @@ import Cursor from './components/Cursor'
 import CardEffects from './components/CardEffects'
 import MediaReveal from './components/MediaReveal'
 import WhatsAppButton from './components/WhatsAppButton'
+import ShareButton from './components/ShareButton'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Marquee from './components/Marquee'
@@ -88,6 +89,7 @@ export default function App() {
       </main>
       <Footer s={s} />
       <WhatsAppButton s={s} />
+      <ShareButton s={s} />
     </>
   )
 }
