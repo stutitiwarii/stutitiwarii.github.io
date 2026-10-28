@@ -643,6 +643,10 @@ body { transition: background-color .5s, color .5s; }
   background: radial-gradient(520px circle at var(--sx, 50%) var(--sy, 40%),
     color-mix(in srgb, var(--accent) 24%, transparent), transparent 62%);
 }
+
+.hero-spot {
+  display: none;
+}
 .hero:hover .hero-spot { opacity: 1; }
 @media (hover: none) { .hero-spot { display: none; } }
 
@@ -1369,4 +1373,8 @@ html[lang="hi"] .err-toast { font-size: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sk::after, .loader-line.waiting span { animation: none; }
+}
+
+.hero-spot {
+  display: none;
 }
