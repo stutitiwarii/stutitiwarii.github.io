@@ -16,6 +16,7 @@ import About from './components/About'
 import SkillOrbit from './components/SkillOrbit'
 import Resume from './components/Resume'
 import Portfolio from './components/Portfolio'
+import Campaigns from './components/Campaigns'
 import Gallery from './components/Gallery'
 import Awards from './components/Awards'
 import SocialPosts from './components/SocialPosts'
@@ -73,6 +74,7 @@ export default function App() {
         <SkillOrbit s={s} />
         <Resume s={s} />
         <Portfolio s={s} />
+        <Campaigns s={s} />
         <Gallery s={s} />
         <Awards s={s} />
         <SocialPosts s={s} />
