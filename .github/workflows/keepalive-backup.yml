@@ -1,0 +1,48 @@
+name: Keep Supabase alive and back up content
+
+on:
+  schedule:
+    - cron: '17 3 */3 * *'   # every 3 days, early morning UTC
+  workflow_dispatch:         # also lets you run it by hand
+
+permissions:
+  contents: read
+
+jobs:
+  keepalive-and-backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read every content table (this also counts as activity)
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          set -e
+          mkdir -p backup
+          TABLES="site_settings portfolio_items services education experience skills testimonials stats gallery social_posts brands reels blogs awards writings campaigns campaign_posts"
+          failed=0
+          echo "### Content backup" >> "$GITHUB_STEP_SUMMARY"
+          for t in $TABLES; do
+            code=$(curl -s -o "backup/$t.json" -w '%{http_code}' \
+              "$SUPABASE_URL/rest/v1/$t?select=*" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY")
+            if [ "$code" = "200" ]; then
+              echo "- $t: $(jq length backup/$t.json) rows" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- $t: FAILED (HTTP $code)" >> "$GITHUB_STEP_SUMMARY"
+              echo "FAILED: $t (HTTP $code)"
+              failed=1
+            fi
+          done
+          if [ "$failed" = "1" ]; then
+            echo "One or more tables could not be downloaded"
+            exit 1
+          fi
+
+      - name: Keep a copy for 90 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-backup-run-${{ github.run_number }}
+          path: backup/
+          retention-days: 90
