@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useSettings, useDataStatus } from './hooks/useSupabase'
 import { useLang } from './i18n/context'
 import { greetingFor } from './i18n/greeting'
+import { PRESETS, loadFonts } from './presets'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import useTheme from './hooks/useTheme'
 import Loader from './components/Loader'
@@ -13,6 +14,9 @@ import MediaReveal from './components/MediaReveal'
 import WhatsAppButton from './components/WhatsAppButton'
 import ShareButton from './components/ShareButton'
 import SurpriseButton from './components/SurpriseButton'
+import ChapterDots from './components/ChapterDots'
+import WhatsNew from './components/WhatsNew'
+import CtaBar from './components/CtaBar'
 import PageSkeleton from './components/PageSkeleton'
 import DataNotice from './components/DataNotice'
 import Navbar from './components/Navbar'
@@ -94,17 +98,34 @@ export default function App() {
 
   const order = useMemo(() => parseOrder(s.section_order), [s.section_order])
 
-  // colors come from Supabase: dark colors in dark mode, light_* colors in light mode
+  // colours, fonts and corners: from the style preset, or (classic) from site_settings
   useEffect(() => {
-    const root = document.documentElement.style
+    const root = document.documentElement
+    const rs = root.style
     const light = theme === 'light'
-    const bg = light ? s.light_bg_color || '#faf7f2' : s.bg_color
-    const text = light ? s.light_text_color || '#1a1a1a' : s.text_color
-    const accent = light ? s.light_accent_color || s.accent_color : s.accent_color
+    const key = String(s.style_preset || '').trim().toLowerCase()
+    const preset = PRESETS[key] || null
+    const p = preset ? preset[light ? 'light' : 'dark'] : null
 
-    if (bg) root.setProperty('--bg', bg)
-    if (text) root.setProperty('--text', text)
-    if (accent) root.setProperty('--accent', accent)
+    const bg = p ? p.bg : light ? s.light_bg_color || '#faf7f2' : s.bg_color
+    const text = p ? p.text : light ? s.light_text_color || '#1a1a1a' : s.text_color
+    const accent = p ? p.accent : light ? s.light_accent_color || s.accent_color : s.accent_color
+
+    if (bg) rs.setProperty('--bg', bg)
+    if (text) rs.setProperty('--text', text)
+    if (accent) rs.setProperty('--accent', accent)
+
+    if (preset) {
+      loadFonts(preset.fonts)
+      rs.setProperty('--font-head', preset.head)
+      rs.setProperty('--font-body', preset.body)
+      rs.setProperty('--radius', preset.radius)
+      rs.setProperty('--btn-radius', preset.btn)
+      rs.setProperty('--hero-bg', p.hero)
+    } else {
+      ;['--font-head', '--font-body', '--radius', '--btn-radius', '--hero-bg'].forEach((k) => rs.removeProperty(k))
+    }
+    root.dataset.preset = preset ? key : 'classic'
 
     const title = s.seo_title || s.brand_name
     if (title) document.title = title
@@ -132,9 +153,12 @@ export default function App() {
         ))}
       </main>
       <Footer s={s} />
+      <ChapterDots s={s} />
       <WhatsAppButton s={s} />
       <ShareButton s={s} />
       <SurpriseButton s={s} />
+      <WhatsNew s={s} show={loaded} />
+      <CtaBar s={s} show={loaded} />
       <DataNotice empty={Object.keys(s).length === 0} />
     </>
   )

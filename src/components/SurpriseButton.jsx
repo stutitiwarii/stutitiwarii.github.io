@@ -10,8 +10,8 @@ const SEL = {
   campaign: '#campaigns .cmp-card',
 }
 const NAME = {
-  en: { project: 'a project', reel: 'a reel', blog: 'a blog', campaign: 'a campaign' },
-  hi: { project: 'एक प्रोजेक्ट', reel: 'एक रील', blog: 'एक ब्लॉग', campaign: 'एक अभियान' },
+  en: { project: 'a project', reel: 'a reel', blog: 'my writings', campaign: 'a campaign' },
+  hi: { project: 'एक प्रोजेक्ट', reel: 'एक रील', blog: 'मेरा लेखन', campaign: 'एक अभियान' },
 }
 
 const pause = (ms) => new Promise((r) => setTimeout(r, ms))

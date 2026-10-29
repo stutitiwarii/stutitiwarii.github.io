@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useTable } from '../hooks/useSupabase'
 import { useLang } from '../i18n/context'
 
@@ -94,6 +94,24 @@ function useNarrow(px = 860) {
   return narrow
 }
 
+// a layer shifts against the cursor; "amt" is how far (pixels) it can move
+function useDepth(sx, sy, amt, calm, yFactor = 0.6) {
+  const k = calm ? 0 : amt
+  const x = useTransform(sx, [-0.5, 0.5], [k, -k])
+  const y = useTransform(sy, [-0.5, 0.5], [k * yFactor, -k * yFactor])
+  return { x, y }
+}
+
+// desktop only: wraps a layer so the cursor can move it (phones get the layer as it is)
+function Depth({ d, z, narrow, children }) {
+  if (narrow) return children
+  return (
+    <motion.div style={{ position: 'absolute', inset: 0, zIndex: z, pointerEvents: 'none', x: d.x, y: d.y }}>
+      {children}
+    </motion.div>
+  )
+}
+
 const num = (v, d) => (v === undefined || v === '' || !Number.isFinite(Number(v)) ? d : Number(v))
 
 export default function Hero({ s }) {
@@ -124,7 +142,7 @@ export default function Hero({ s }) {
   const hasCut = !!s.hero_cutout
   const hasScript = !!s.hero_script
 
-  // parallax: each layer moves at its own speed as the hero scrolls out of view
+  // scroll parallax: each layer moves at its own speed as the hero scrolls out of view
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const bgY = useTransform(scrollYProgress, [0, 1], calm ? ['0%', '0%'] : ['0%', '10%'])
   const textY = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, 90])
@@ -134,20 +152,36 @@ export default function Hero({ s }) {
   const cutY = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, 70])
   const scriptY = useTransform(scrollYProgress, [0, 1], calm ? [0, 0] : [0, -70])
 
-  // the glow follows the mouse (PC only, the CSS hides it on touch screens)
+  // mouse depth (PC only): the pointer position, smoothed
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const sx = useSpring(mx, { stiffness: 70, damping: 18, mass: 0.6 })
+  const sy = useSpring(my, { stiffness: 70, damping: 18, mass: 0.6 })
+  const dShapeA = useDepth(sx, sy, 34, calm)
+  const dShapeB = useDepth(sx, sy, 16, calm)
+  const dScript = useDepth(sx, sy, 26, calm)
+  const dCut = useDepth(sx, sy, 42, calm, 0) // sideways only, so her feet stay on the bottom edge
+
   const onMove = (e) => {
     const el = ref.current
     if (!el) return
     const r = el.getBoundingClientRect()
     el.style.setProperty('--sx', `${e.clientX - r.left}px`)
     el.style.setProperty('--sy', `${e.clientY - r.top}px`)
+    mx.set((e.clientX - r.left) / r.width - 0.5)
+    my.set((e.clientY - r.top) / r.height - 0.5)
+  }
+  const onLeave = () => {
+    mx.set(0)
+    my.set(0)
   }
 
   // positions are set here (not in the CSS file), so they always apply
+  const heroBg = 'var(--hero-bg, #0b0b0d)'
   const sectionStyle = narrow
     ? {
         // phones: script on top, then the text, then her cutout below it (no overlap)
-        backgroundColor: '#0b0b0d',
+        backgroundColor: heroBg,
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -155,7 +189,7 @@ export default function Hero({ s }) {
         paddingBottom: 0,
       }
     : {
-        backgroundColor: '#0b0b0d',
+        backgroundColor: heroBg,
         // keeps the text clear of the cutout on the right
         paddingRight: hasCut ? `max(6%, ${cutRight + 12}vw)` : undefined,
         // keeps the text below the script
@@ -204,7 +238,7 @@ export default function Hero({ s }) {
       }
 
   return (
-    <section id="top" className="hero" ref={ref} onMouseMove={onMove} style={sectionStyle}>
+    <section id="top" className="hero" ref={ref} onMouseMove={onMove} onMouseLeave={onLeave} style={sectionStyle}>
       <motion.div className="hero-parallax" style={{ y: bgY }}>
         <motion.div
           className="hero-bg"
@@ -216,34 +250,43 @@ export default function Hero({ s }) {
       </motion.div>
       <div className="hero-overlay" style={{ opacity: overlay }} />
       <div className="hero-spot" />
-      <motion.div className="hero-shape a" style={{ y: shapeA }} />
-      <motion.div className="hero-shape b" style={{ y: shapeB }} />
+
+      <Depth d={dShapeA} z={1} narrow={narrow}>
+        <motion.div className="hero-shape a" style={{ y: shapeA }} />
+      </Depth>
+      <Depth d={dShapeB} z={1} narrow={narrow}>
+        <motion.div className="hero-shape b" style={{ y: shapeB }} />
+      </Depth>
 
       {s.hero_trail !== 'false' && <PhotoTrail images={trailImages} hostRef={ref} />}
 
       {/* these two layers sit above the dark overlay, so they are never dimmed */}
       {hasScript && (
-        <motion.img
-          src={s.hero_script}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          style={scriptStyle}
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        />
+        <Depth d={dScript} z={2} narrow={narrow}>
+          <motion.img
+            src={s.hero_script}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            style={scriptStyle}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </Depth>
       )}
       {hasCut && (
-        <motion.img
-          src={s.hero_cutout}
-          alt={s.brand_name || ''}
-          draggable={false}
-          style={cutStyle}
-          initial={{ opacity: 0, x: narrow ? 0 : 70, y: narrow ? 40 : 0 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        />
+        <Depth d={dCut} z={2} narrow={narrow}>
+          <motion.img
+            src={s.hero_cutout}
+            alt={s.brand_name || ''}
+            draggable={false}
+            style={cutStyle}
+            initial={{ opacity: 0, x: narrow ? 0 : 70, y: narrow ? 40 : 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </Depth>
       )}
 
       <motion.div
