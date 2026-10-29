@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useSettings, useDataStatus } from './hooks/useSupabase'
+import { useLang } from './i18n/context'
+import { greetingFor } from './i18n/greeting'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import useTheme from './hooks/useTheme'
 import Loader from './components/Loader'
@@ -10,6 +12,7 @@ import CardEffects from './components/CardEffects'
 import MediaReveal from './components/MediaReveal'
 import WhatsAppButton from './components/WhatsAppButton'
 import ShareButton from './components/ShareButton'
+import SurpriseButton from './components/SurpriseButton'
 import PageSkeleton from './components/PageSkeleton'
 import DataNotice from './components/DataNotice'
 import Navbar from './components/Navbar'
@@ -32,14 +35,64 @@ import Testimonials from './components/Testimonials'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 
+// every section that the "section_order" row in Supabase can move or hide
+const SECTIONS = {
+  marquee: (s) => <Marquee s={s} />,
+  about: (s) => <About s={s} />,
+  orbit: (s) => <SkillOrbit s={s} />,
+  resume: (s) => <Resume s={s} />,
+  portfolio: (s) => <Portfolio s={s} />,
+  campaigns: (s) => <Campaigns s={s} />,
+  gallery: (s) => <Gallery s={s} />,
+  awards: (s) => <Awards s={s} />,
+  social: (s) => <SocialPosts s={s} />,
+  reels: (s) => <ReelPhone s={s} />,
+  blogs: (s) => <BlogSlider s={s} />,
+  writing: (s) => <WritingSlider s={s} />,
+  services: (s) => <Services s={s} />,
+  brands: (s) => <BrandGlobe s={s} />,
+  testimonials: (s) => <Testimonials s={s} />,
+  contact: (s) => <Contact s={s} />,
+}
+const DEFAULT_ORDER = Object.keys(SECTIONS)
+
+// "about,resume,-awards,portfolio": listed order, a "-" in front hides a section,
+// and any section not mentioned shows up at the end
+function parseOrder(value) {
+  const seen = new Set()
+  const out = []
+  String(value || '')
+    .split(',')
+    .map((x) => x.trim().toLowerCase())
+    .filter(Boolean)
+    .forEach((raw) => {
+      const hidden = raw.startsWith('-') || raw.startsWith('!')
+      const key = raw.replace(/^[-!]/, '')
+      if (!SECTIONS[key] || seen.has(key)) return
+      seen.add(key)
+      if (!hidden) out.push(key)
+    })
+  DEFAULT_ORDER.forEach((k) => {
+    if (!seen.has(k)) out.push(k)
+  })
+  return out
+}
+
 export default function App() {
   const s = useSettings()
+  const { lang } = useLang()
   const status = useDataStatus()
   const [loaded, setLoaded] = useState(false)
   const finish = useCallback(() => setLoaded(true), [])
-  const [theme, toggleTheme] = useTheme(s.default_theme)
+  const [theme, toggleTheme] = useTheme(s.default_theme, s.theme_auto !== 'false')
 
   useSmoothScroll()
+
+  // time-of-day greeting replaces the hero title (turn it off with greeting_on = false)
+  const greeting = useMemo(() => greetingFor(s, lang), [s, lang])
+  const heroS = useMemo(() => (greeting ? { ...s, hero_title: greeting } : s), [s, greeting])
+
+  const order = useMemo(() => parseOrder(s.section_order), [s.section_order])
 
   // colors come from Supabase: dark colors in dark mode, light_* colors in light mode
   useEffect(() => {
@@ -72,28 +125,16 @@ export default function App() {
       <ScrollProgress />
       <Navbar s={s} theme={theme} onToggleTheme={toggleTheme} />
       <main>
-        <Hero key={String(loaded)} s={s} />
+        <Hero key={String(loaded)} s={heroS} />
         {status.booting && <PageSkeleton />}
-        <Marquee s={s} />
-        <About s={s} />
-        <SkillOrbit s={s} />
-        <Resume s={s} />
-        <Portfolio s={s} />
-        <Campaigns s={s} />
-        <Gallery s={s} />
-        <Awards s={s} />
-        <SocialPosts s={s} />
-        <ReelPhone s={s} />
-        <BlogSlider s={s} />
-        <WritingSlider s={s} />
-        <Services s={s} />
-        <BrandGlobe s={s} />
-        <Testimonials s={s} />
-        <Contact s={s} />
+        {order.map((key) => (
+          <Fragment key={key}>{SECTIONS[key](s)}</Fragment>
+        ))}
       </main>
       <Footer s={s} />
       <WhatsAppButton s={s} />
       <ShareButton s={s} />
+      <SurpriseButton s={s} />
       <DataNotice empty={Object.keys(s).length === 0} />
     </>
   )

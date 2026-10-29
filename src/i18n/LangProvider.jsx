@@ -3,12 +3,16 @@ import { LangContext } from './context'
 
 const KEY = 'lang'
 
+// the visitor's own choice wins; otherwise Hindi if the browser's first language is Hindi
 const read = () => {
   try {
-    return localStorage.getItem(KEY) === 'hi' ? 'hi' : 'en'
+    const saved = localStorage.getItem(KEY)
+    if (saved === 'hi' || saved === 'en') return saved
   } catch {
-    return 'en'
+    /* storage blocked */
   }
+  const list = typeof navigator !== 'undefined' ? (navigator.languages?.length ? navigator.languages : [navigator.language]) : []
+  return String(list[0] || '').toLowerCase().startsWith('hi') ? 'hi' : 'en'
 }
 
 export default function LangProvider({ children }) {
