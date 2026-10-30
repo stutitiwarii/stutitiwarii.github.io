@@ -5,7 +5,8 @@ import Reveal from './Reveal'
 import RevealText from './RevealText'
 
 export default function Contact({ s }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const hi = lang === 'hi'
   const [form, setForm] = useState({ name: '', email: '', message: '', website: '' })
   const [sending, setSending] = useState(false)
   const [status, setStatus] = useState({ type: '', text: '' })
@@ -61,6 +62,7 @@ export default function Contact({ s }) {
     s.phone && { ic: '☎', label: t('lbl_phone'), text: s.phone, href: `tel:${s.phone.replace(/\s/g, '')}` },
     s.whatsapp && { ic: '💬', label: t('lbl_whatsapp'), text: t('txt_whatsapp'), href: `https://wa.me/${s.whatsapp}` },
     s.instagram && { ic: '📷', label: t('lbl_instagram'), text: t('txt_instagram'), href: s.instagram },
+    s.facebook && { ic: 'f', label: hi ? 'फ़ेसबुक' : 'Facebook', text: hi ? 'फ़ेसबुक पर जुड़ें' : 'Connect on Facebook', href: s.facebook },
     s.linkedin && { ic: 'in', label: t('lbl_linkedin'), text: t('txt_linkedin'), href: s.linkedin },
   ].filter(Boolean)
 

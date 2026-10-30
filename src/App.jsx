@@ -4,8 +4,10 @@ import { useSettings, useDataStatus } from './hooks/useSupabase'
 import { useLang } from './i18n/context'
 import { greetingFor } from './i18n/greeting'
 import { PRESETS, loadFonts } from './presets'
+import { okHex } from './festivals'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import useTheme from './hooks/useTheme'
+import useFestival from './hooks/useFestival'
 import Loader from './components/Loader'
 import ScrollProgress from './components/ScrollProgress'
 import Cursor from './components/Cursor'
@@ -17,6 +19,7 @@ import SurpriseButton from './components/SurpriseButton'
 import ChapterDots from './components/ChapterDots'
 import WhatsNew from './components/WhatsNew'
 import CtaBar from './components/CtaBar'
+import Festive from './components/Festive'
 import PageSkeleton from './components/PageSkeleton'
 import DataNotice from './components/DataNotice'
 import Navbar from './components/Navbar'
@@ -89,16 +92,26 @@ export default function App() {
   const [loaded, setLoaded] = useState(false)
   const finish = useCallback(() => setLoaded(true), [])
   const [theme, toggleTheme] = useTheme(s.default_theme, s.theme_auto !== 'false')
+  const festival = useFestival(s)
 
   useSmoothScroll()
 
-  // time-of-day greeting replaces the hero title (turn it off with greeting_on = false)
+  // time-of-day greeting replaces the hero title; a festival wish replaces the small line above it
   const greeting = useMemo(() => greetingFor(s, lang), [s, lang])
-  const heroS = useMemo(() => (greeting ? { ...s, hero_title: greeting } : s), [s, greeting])
+  const heroS = useMemo(() => {
+    let out = s
+    if (greeting) out = { ...out, hero_title: greeting }
+    if (festival) {
+      const wish = festival.greeting || festival.name
+      const e = festival.emoji ? `${festival.emoji} ` : ''
+      out = { ...out, hero_tagline: `${e}${wish}${festival.emoji ? ` ${festival.emoji}` : ''}` }
+    }
+    return out
+  }, [s, greeting, festival])
 
   const order = useMemo(() => parseOrder(s.section_order), [s.section_order])
 
-  // colours, fonts and corners: from the style preset, or (classic) from site_settings
+  // colours, fonts and corners: from the festival, the style preset, or (classic) from site_settings
   useEffect(() => {
     const root = document.documentElement
     const rs = root.style
@@ -127,12 +140,23 @@ export default function App() {
     }
     root.dataset.preset = preset ? key : 'classic'
 
+    // a festival changes the accent colour (and the dark background) for its days
+    if (festival) {
+      const fa = light ? (okHex(festival.light_accent) ? festival.light_accent : okHex(festival.accent) ? festival.accent : null) : okHex(festival.accent) ? festival.accent : null
+      if (fa) rs.setProperty('--accent', fa)
+      if (!light && okHex(festival.bg_dark)) {
+        rs.setProperty('--bg', festival.bg_dark)
+        rs.setProperty('--hero-bg', festival.bg_dark)
+      }
+    }
+    root.dataset.festival = festival?.slug || ''
+
     const title = s.seo_title || s.brand_name
     if (title) document.title = title
     if (s.seo_description) {
       document.querySelector('meta[name="description"]')?.setAttribute('content', s.seo_description)
     }
-  }, [s, theme])
+  }, [s, theme, festival])
 
   return (
     <>
@@ -153,6 +177,7 @@ export default function App() {
         ))}
       </main>
       <Footer s={s} />
+      <Festive festival={festival} theme={theme} />
       <ChapterDots s={s} />
       <WhatsAppButton s={s} />
       <ShareButton s={s} />

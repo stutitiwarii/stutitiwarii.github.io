@@ -1,6 +1,7 @@
 export default function Footer({ s }) {
   const social = [
     ['Instagram', s.instagram],
+    ['Facebook', s.facebook],
     ['LinkedIn', s.linkedin],
     ['WhatsApp', s.whatsapp && `https://wa.me/${s.whatsapp}`],
   ].filter(([, url]) => url)
