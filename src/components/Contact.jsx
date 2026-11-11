@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useLang } from '../i18n/context'
 import Reveal from './Reveal'
 import RevealText from './RevealText'
+import InstallApp from './InstallApp'
 
 export default function Contact({ s }) {
   const { t, lang } = useLang()
@@ -104,6 +105,8 @@ export default function Contact({ s }) {
               </div>
               {status.text && <p className={`form-status ${status.type}`}>{status.text}</p>}
             </form>
+
+            <InstallApp s={s} />
           </Reveal>
         </div>
       </div>

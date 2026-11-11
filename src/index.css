@@ -1580,3 +1580,23 @@ html[lang="hi"] .ft-tip { font-size: .95rem; }
 @media (prefers-reduced-motion: reduce) {
   .festive-garland.lights { animation: none; }
 }
+
+/* ================= INSTALL APP ================= */
+.install-row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line);
+}
+.install-btn { display: inline-flex; align-items: center; gap: 10px; padding: 11px 26px; }
+.install-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+.install-hint { color: var(--muted); font-size: .85rem; }
+.install-done { color: #5ed39a; font-size: .92rem; }
+
+.install-steps { list-style: none; counter-reset: step; display: grid; gap: 14px; margin-top: 22px; text-align: left; }
+.install-steps li { counter-increment: step; display: flex; gap: 14px; align-items: flex-start; color: var(--muted); }
+.install-steps li::before {
+  content: counter(step); flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--accent); color: #111; font-weight: 600; font-size: .85rem;
+}
+
+html[lang="hi"] .install-hint, html[lang="hi"] .install-done { font-size: 1rem; }
+html[lang="hi"] .install-steps li { font-size: 1.02rem; }
